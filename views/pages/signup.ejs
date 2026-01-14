@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body>
+    <div class="page-container d-flex flex-column min-vh-100">
+        <div class="bg-dark">
+            <%- include('../partials/topnavbar') %>
+        </div>
+        <div id="container" class="mycontainer my-auto">
+            <div id="loginbackground">
+                <div class="signup-content">
+                    <h3 class="signup-header center">Sign Up!</h3>
+                    <form action="/signup" method="POST">
+                        <div class="form-group mt-3">
+                            <label for="inputEmail">Email</label>
+                            <input type="email" class="form-control" id="inputEmail"
+                                placeholder="Email" name="email" required>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="inputUsername">Username</label>
+                            <input type="username" class="form-control" id="inputUsername"
+                                placeholder="Username" name="username" required>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="inputPassword">Password</label>
+                            <input type="password" class="form-control" id="inputPassword"
+                                placeholder="Password" name="password" required>
+                        </div>
+                        <div class="d-grid gap-2 col-4 mx-auto">
+                            <button class="submit-button mt-3 rounded btn btn-primary" type="submit"
+                                class="btn btn-primary" value="process">Sign Up!</button>
+                        </div>
+                        <div class="center mt-4">
+                            <p class="">Already have an account? <a class="link-underline link-underline-opacity-0 text-body custom" href="/login">Log
+                                In!</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
+<script>
+
+function isPasswordStrong(password){
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /[0-9]/.test(password);
+    const hasSpecialCharacters = /[!@#%^^&*().,?><:;|£$]/.test(password)
+
+    return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers && hasSpecialCharacters;
+}
+
+function isEmailValid(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function handleSubmit(){
+    
+}
+</script>

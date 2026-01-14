@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body>
+    <%- include('../partials/topnavbar'); %>
+
+    <div class="content-container mx-5 mt-5 row">
+        <div class="user-profile-title textcenter">
+            <div class="">
+                <% if (pageUser.user_id===user.user_id) { %>
+                    <h1>Your Profile</h1>
+                    <% } else { %>
+                        <h1>
+                            <%= pageUser.username %>'s Profile
+                        </h1>
+                        <% } %>
+            </div>
+        </div>
+
+        <div>
+            <h3>Stores</h3>
+            <div class="card" style="width: 18rem;">
+                <!-- <img src="..." class="card-img-top" alt="..."> -->
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
+                        card’s content.</p>
+                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</body>

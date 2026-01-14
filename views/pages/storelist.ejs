@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body>
+    <%- include('../partials/topnavbar') %>
+        <div class="content-container mx-5 mt-5 row">
+            <div class="textcenter">
+                <div class="">
+                    <h1>Stores</h1>
+                </div>
+            </div>
+
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <% if(typeof stores !=='undefined' ) { stores.forEach((store)=> { %>
+                    <div class="col">
+                        <div class="card h-100" id="<%= store.store_id %>">
+                            <img src="..." class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <%= store.name %>
+                                </h5>
+                                <p class="card-text">
+                                    <%= store.description %>
+                                </p>
+                                <a href="/store/<%= store.store_id %>" class="btn btn-primary">View Store</a>
+                            </div>
+                        </div>
+                    </div>
+                    <% }); %>
+                    <% } else { %>
+                        <p>There are no stores available</p>
+                    <% } %>
+            </div>
+        </div>
+</body>
+
+</html>

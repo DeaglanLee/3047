@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body>
+    <div class="page-container d-flex flex-column min-vh-100">
+        <div class="bg-dark">
+            <%- include('../partials/topnavbar') %>
+        </div>
+        <div id="container" class="mycontainer my-auto">
+            <div id="loginbackground">
+                <div class="register-content">
+                    <h3 class="register-header center">Register Store!</h3>
+                    <form action="/registerstore" method="POST">
+                        <div class="form-group mt-3">
+                            <label for="inputStoreName">Store Name</label>
+                            <input type="username" class="form-control" id="inputStoreName" placeholder="Store Name"
+                                name="store-name" required>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="inputUsername">Username</label>
+                            <input type="username" class="form-control" id="inputUsername" placeholder="Username"
+                                name="username" required>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="inputEmail">Email</label>
+                            <input type="email" class="form-control" id="inputEmail" placeholder="Email" name="email"
+                                required>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="inputPassword">Password</label>
+                            <input type="password" class="form-control" id="inputPassword" placeholder="Password"
+                                name="password" required>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="inputAddress">Address</label>
+                            <input type="text" class="form-control" id="inputAddress" placeholder="123 Main Street"
+                                name="address" required>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="inputPostCode">Postcode</label>
+                            <input type="text" class="form-control" id="inputPostCode" placeholder="BT1 5NA"
+                                name="postcode" required>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="inputPicture">Picture</label>
+                            <input type="file" class="form-control" id="inputPicture" name="Picture">
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="inputDescription">Description</label>
+                            <input type="text" class="form-control" id="inputDescription" placeholder="Store Description"
+                                name="description" required>
+                        </div>
+                        <h4>Opening Hours</h4>
+                        <div class="form-group mt-3">
+                            <label for="monday-hours-open">Monday Open</label>
+                            <input type="time" class="form-control" id="monday-hours-open" name="monday-open" step="60"
+                                >
+                            <label for="monday-hours-closed">Monday Closed</label>
+                            <input type="time" class="form-control" id="monday-hours-closed" name="monday-closed"
+                                step="60" >
+                            <input class="form-check-input" type="checkbox" value="" id="alldaymonday" name="alldaymonday">
+                            <label class="form-check-label" for="alldaymonday">
+                                All Day
+                            </label>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="Tuesday-hours-open">Tuesday Open</label>
+                            <input type="time" class="form-control" id="Tuesday-hours-open" name="tuesday-open" step="60"
+                                >
+                            <label for="Tuesday-hours-closed">Tuesday Closed</label>
+                            <input type="time" class="form-control" id="Tuesday-hours-closed" name="tuesday-closed"
+                                step="60" >
+                            <input class="form-check-input" type="checkbox" value="" id="alldaytuesday" name="alldaytuesday">
+                            <label class="form-check-label" for="alldaytuesday">
+                                All Day
+                            </label>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="Wednesday-hours-open">Wednesday Open</label>
+                            <input type="time" class="form-control" id="Wednesday-hours-open" name="wednesday-open" step="60">
+                            <label for="Wednesday-hours-closed">Wednesday Closed</label>
+                            <input type="time" class="form-control" id="Wednesday-hours-closed" name="wednesday-closed"
+                                step="60">
+                            <input class="form-check-input" type="checkbox" value="" id="alldaywednesday" name="alldaywednesday">
+                            <label class="form-check-label" for="alldaywednesday">
+                                All Day
+                            </label>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="Thursday-hours-open">Thursday Open</label>
+                            <input type="time" class="form-control" id="Thursday-hours-open" name="thursday-open" step="60"
+                                >
+                            <label for="Thursday-hours-closed">Thursday Closed</label>
+                            <input type="time" class="form-control" id="Thursday-hours-closed" name="thursday-closed"
+                                step="60" >
+                            <input class="form-check-input" type="checkbox" value="" id="alldaythursday" name="alldaythursday">
+                            <label class="form-check-label" for="alldaythursday">
+                                All Day
+                            </label>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="Friday-hours-open">Friday Open</label>
+                            <input type="time" class="form-control" id="Friday-hours-open" name="friday-open" step="60"
+                                >
+                            <label for="Friday-hours-closed">Friday Closed</label>
+                            <input type="time" class="form-control" id="Friday-hours-closed" name="friday-closed"
+                                step="60" >
+                            <input class="form-check-input" type="checkbox" value="" id="alldayfriday" name="alldayfriday">
+                            <label class="form-check-label" for="alldayfriday">
+                                All Day
+                            </label>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="Saturday-hours-open">Saturday Open</label>
+                            <input type="time" class="form-control" id="Saturday-hours-open" name="saturday-open" step="60"
+                            >
+                            <label for="Saturday-hours-closed">Saturday Closed</label>
+                            <input type="time" class="form-control" id="Saturday-hours-closed" name="saturday-closed"
+                                step="60" >
+                            <input class="form-check-input" type="checkbox" value="" id="alldaysaturday" name="alldaysaturday">
+                            <label class="form-check-label" for="alldaysaturday">
+                                All Day
+                            </label>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="Sunday-hours-open">Sunday Open</label>
+                            <input type="time" class="form-control" id="Sunday-hours-open" name="sunday-open" step="60"
+                                >
+                            <label for="Sunday-hours-closed">Sunday Closed</label>
+                            <input type="time" class="form-control" id="Sunday-hours-closed" name="sunday-closed"
+                                step="60" >
+                            <input class="form-check-input" type="checkbox" value="" id="alldaysunday" name="alldaysunday">
+                            <label class="form-check-label" for="alldaysunday">
+                                All Day
+                            </label>
+                        </div>
+                        <div class="form-group form-check mt-2">
+                            <input type="checkbox" class="form-check-input" id="rememberCheck" name="rememberCheck">
+                            <label class="form-check-label" for="rememberCheck">Remember me?</label>
+                        </div>
+                        <div class="d-grid gap-2 col-4 mx-auto">
+                            <button class="submit-button mt-3 rounded btn btn-primary" type="submit"
+                                class="btn btn-primary" value="process">Register!</button>
+                        </div>
+                        <div class="forgot-password fc-white fo mt-2">
+                            <p><a class="link-underline link-underline-opacity-0 text-body custom" href="">Forgot
+                                    Password?</a></p>
+                        </div>
+                        <div class="center mt-4">
+                            <p class="">Already have a registered store? <a
+                                    class="link-underline link-underline-opacity-0 text-body custom"
+                                    href="/storelogin">Log In!</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
+<script>
+
+</script>
