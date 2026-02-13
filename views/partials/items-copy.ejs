@@ -1,0 +1,79 @@
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  <div class="col card-container-single">
+    <div class="card h-100">
+      <% if(item.picture !==null ) { %>
+        <img class="card-img-top" src="<%= baseUrl %>/img/stores/items/<%= item.picture %>" alt=""
+          style="height: 300px;">
+        <% } else { %>
+          <img class="card-img-top" src="<%= baseUrl %>/img/stores/items/DefaultItem.png" alt="" style="height: 300px;">
+          <% } %>
+            <div class="card-body">
+              <form action="/addItemToBasket/<%= item.item_id %>" method="POST">
+                <h5 class="card-title">
+                  <%= item.name %>
+                </h5>
+                <p class="card-text" name="itemPrice">
+                  <%= item.price %>
+                </p>
+                <div data-mdb-input-init class="form-outline d-flex flex-row mb-3" style="width: 10rem;">
+                  <label class="form-label me-2" for="itemQuantity">Quantity</label>
+                  <input min="1" max="10" placeholder="1" type="number" id="itemQuantity" class="form-control"
+                    name="itemQuantity" />
+                </div>
+                <% if (user) { %>
+                  <button type="submit" class="btn btn-primary">Add to Basket</button>
+                  <% } %>
+                    <% if (owner) { %>
+                      <a href="/store/<%= store.store_id %>/editItem/<%= item.item_id %>" class="btn btn-secondary">Edit
+                        Item</a>
+                      <% } %>
+              </form>
+            </div>
+            <div class="card-footer">
+              <small class="text-body-secondary">
+                <%= item.updated_at %>
+              </small>
+            </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  function mycardHtml(item) {
+    if (item.picture !== null) {
+      var imgSrc = `<%= baseUrl %>/img/stores/items/${item.picture}`;
+    } else {
+      var imgSrc = `<%= baseUrl %>/img/stores/items/DefaultItem.png`;
+    }
+
+    var name = `<h5 class="card-title">${item.name}</h5>`
+
+    return name;
+  }
+
+
+
+
+
+  function cardHtml(item) {
+    return `
+<div class="col-12 col-md-6 col-lg-4" data-id="${escapeHtml(item.id)}">
+<div class="card h-100 shadow-sm">
+<div class="card-body">
+<div class="d-flex justify-content-between align-items-start">
+<div>
+<h5 class="card-title mb-1">${escapeHtml(item.title)}</h5>
+                    ${item.subtitle ? `<h6 class="card-subtitle text-body-secondary">${escapeHtml(item.subtitle)}</h6>` : ""}
+</div>
+                  ${item.badge ? `<span class="badge text-bg-secondary">${escapeHtml(item.badge)}</span>` : ""}
+</div>
+<p class="card-text mt-3">${escapeHtml(item.body)}</p>
+<button class="btn btn-outline-primary btn-sm" data-action="open">Open</button>
+<button class="btn btn-outline-danger btn-sm" data-action="delete">Delete</button>
+</div>
+</div>
+</div>
+        `;
+  }
+</script>

@@ -6,7 +6,10 @@
 </head>
 
 <body>
-    <%- include('../partials/topnavbar') %>
+    <div class="page-container d-flex flex-column min-vh-100">
+        <div class="bg-dark">
+            <%- include('../partials/topnavbar') %>
+        </div>
         <div class="content-container mx-5 mt-5 row">
             <div class="textcenter">
                 <div class="">
@@ -36,6 +39,7 @@
                     <% } %>
             </div>
         </div>
+    </div>
 </body>
 
 </html>

@@ -41,6 +41,11 @@
                             <p class="">Don't have an account? <a class="link-underline link-underline-opacity-0 text-body custom" href="/signup">Sign Up!</a></p>
                         </div>
                     </form>
+                    <div class="center mt-3">
+                        <% if (error) { %>
+                            <p class="text-danger"><%= error %></p>
+                        <% } %>
+                    </div>
                 </div>
             </div>
         </div>

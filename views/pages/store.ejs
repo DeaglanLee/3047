@@ -6,20 +6,27 @@
 </head>
 
 <body>
-    <%- include('../partials/topnavbar') %>
-        <div class="content-container mx-5 mt-5 row">
-            <div class="container-fluid d-flex justify-content-center align-items-center position-relative"
-                style="height: 90px;">
-                <h1 class="m-0"><%= store.name %></h1>
-                <% if (user) { %>
-                <a href="/basket" class="btn btn-primary position-absolute top-50 end-0 translate-middle-y me-3">
-                    Your Basket
-                </a>
-                <% } %>
-            </div>
-
-            <%- include('../partials/items') %>
+    <div class="page-container d-flex flex-column min-vh-100">
+        <div class="bg-dark">
+            <%- include('../partials/topnavbar') %>
         </div>
+            <div class="content-container mx-5 mt-5 row">
+                <div class="container-fluid d-flex justify-content-center align-items-center position-relative"
+                    style="height: 90px;">
+                    <h1 class="m-0">
+                        <%= store.name %>
+                    </h1>
+                    <% if (user) { %>
+                        <a href="/basket"
+                            class="btn btn-primary position-absolute top-50 end-0 translate-middle-y me-3">
+                            Your Basket
+                        </a>
+                        <% } %>
+                </div>
+
+                <%- include('../partials/items') %>
+            </div>
+    </div>
 </body>
 
 </html>

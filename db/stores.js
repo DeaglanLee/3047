@@ -23,7 +23,7 @@ async function createStoreUser(storeId, userId) {
 
 async function linkStoreToUser(storeName, username) {
     try {
-        const store = await getStoreByName(storeName);
+        const store = await getRecentlyCreatedStoresWithName(storeName, 1);
         console.log("STORE:", store);
         const user = await getUserByUsername(username);
         console.log("USER:", user);
@@ -66,6 +66,16 @@ async function getItemsByStoreId(storeId) {
     return items.rows;
 }
 
+async function getStores(){
+    const stores = await pool.query(`SELECT * FROM stores;`);
+    return stores.rows;
+}
+
+async function getAllItems() {
+    const items = await pool.query(`SELECT * FROM items;`);
+    return items.rows;
+}
+
 async function getStoreUsers(storeId) {
     const storeUsers = await pool.query(`SELECT * FROM store_users WHERE store_id = '${storeId}';`);
     return storeUsers.rows;
@@ -81,6 +91,23 @@ async function getItemByItemId(itemId) {
     return item.rows[0];
 }
 
+async function getRecentlyCreatedStores(limit = 5) {
+    try {
+        const result = await pool.query('SELECT * FROM stores ORDER BY created_at DESC LIMIT $1', [limit]);
+        return result.rows;
+    } catch (error) {
+        throw new Error(`Error getting recently created stores: ${error.message}`);
+    }
+}
+
+async function getRecentlyCreatedStoresWithName(storeName, limit = 5) {
+    try {
+        const result = await pool.query('SELECT * FROM stores WHERE name = $1 ORDER BY created_at DESC LIMIT $2', [storeName, limit]);
+        return result.rows;
+    } catch (error) {
+        throw new Error(`Error getting recently created stores: ${error.message}`);
+    }
+}
 
 
 module.exports = {
@@ -93,5 +120,7 @@ module.exports = {
     linkStoreToUser,
     getStoreUsers,
     getItemByItemId,
-    getStoreUsersByUserId
+    getStoreUsersByUserId,
+    getAllItems,
+    getStores
 }

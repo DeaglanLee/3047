@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body>
+    <div class="page-container d-flex flex-column min-vh-100">
+        <div class="bg-dark">
+            <%- include('../partials/topnavbar') %>
+        </div>
+        <div id="container" class="mycontainer my-auto mx-3">
+            <div class="row justify-content-around" id="">
+                <div class="d-flex col-4" id="left-panel">
+                    <div class="login-content">
+                        <h3 class="login-header center">
+                            <%= title %>
+                        </h3>
+
+                        <form
+                            action="/store/<%= store.store_id %>/<%= type === 'Create' ? 'createItem' : 'editItem/' + item.item_id %>"
+                            method="POST">
+                            <div class="form-group mt-3">
+                                <label for="inputItemName">Item Name</label>
+                                <input type="text" class="form-control" id="inputItemName" placeholder="Item Name"
+                                    name="itemname" value="<%= item?.name || '' %>" required>
+                            </div>
+                            <h4 class="login-header center">Nutrition Information</h4>
+                            <div class="form-group mt-3">
+                                <label for="inputFats">Fats (g)</label>
+                                <input type="number" class="form-control" id="inputFats" placeholder="12" name="fats"
+                                    value="<%= item?.nutrition.fats || '' %>" required>
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="inputSugars">Sugars (g)</label>
+                                <input type="number" class="form-control" id="inputSugars" placeholder="12"
+                                    name="sugars" value="<%= item?.nutrition.sugars || '' %>" required>
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="inputCarbs">Carbs (g)</label>
+                                <input type="number" class="form-control" id="inputCarbs" placeholder="12" name="carbs"
+                                    value="<%= item?.nutrition.carbs || '' %>" required>
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="inputPrice">Price (£)</label>
+                                <input type="decimal" class="form-control" id="inputPrice" placeholder="0.00"
+                                    name="price" value="<%= item?.price || '' %>" required>
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="inputPicture">Picture</label>
+                                <input type="file" class="form-control" id="inputPicture" name="Picture">
+                            </div>
+                            <div class="d-grid gap-2 col-4 mx-auto">
+                                <button class="submit-button mt-3 rounded btn btn-primary" type="submit"
+                                    class="btn btn-primary" value="process">
+                                    <%= type %> Item!
+                                </button>
+                            </div>
+                        </form>
+                        <div class="center mt-3">
+                            <% if (error) { %>
+                                <p class="text-danger">
+                                    <%= error %>
+                                </p>
+                                <% } %>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex col-4" id="right-panel">
+                        Hello
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
+<script>
+
+</script>

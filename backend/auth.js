@@ -11,7 +11,10 @@ const bcrypt = require('bcrypt');
  */
 async function verifyUserLogin(username, password) {
     const user = await getUserByUsername(username);
-
+    if (!user) {
+        throw new Error(`User not found`);
+    }
+    
     return {
         user: user,
         result: await bcrypt.compare(password, user.password)

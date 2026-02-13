@@ -6,7 +6,10 @@
 </head>
 
 <body>
-    <%- include('../partials/topnavbar'); %>
+    <div class="page-container d-flex flex-column min-vh-100">
+        <div class="bg-dark">
+            <%- include('../partials/topnavbar') %>
+        </div>
 
         <div class="content-container mx-5 mt-5 row">
             <div class="textcenter">
@@ -19,7 +22,7 @@
 
             <div class="mt-3 mx-3">
                 <!-- <img src="..." class="card-img-top" alt="..."> -->
-                <% if(basket && basket.length> 0) { basket.forEach((item)=> { %>
+                <% if(basket && basketItems.length> 0) { basketItems.forEach((item)=> { %>
                     <form action="/removeItemFromBasket/<%= item.item_id %>" method="POST">
                         <div class="card container-sm">
                             <div class="card-body">
@@ -62,4 +65,5 @@
             </div>
 
         </div>
+    </div>
 </body>

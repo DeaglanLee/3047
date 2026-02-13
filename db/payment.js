@@ -1,31 +1,17 @@
 const { pool } = require("./client");
 
-async function processPayment(basket, basketTotal, address, postcode, user) {
-    await createOrder(basket, basketTotal, address, postcode, user);
+// SETTERS
+async function processPayment(basket, basketTotal, address, postcode, cardNumber, nameOnCard, expiryDate, user) {
+    await createOrder(basket, basketTotal, address, postcode, cardNumber, nameOnCard, expiryDate, user);
     await createOrderItems(basket, user);
 }
 
-async function getPreviousOrders(user_id, limit = 5) {
-    try {
-        const orders = await getLastOrders(user_id, limit);
-        for (let i = 0; i < limit; i++) {
-            const combinedOrderDetails = await getCombinedOrderDetails(orders[i].order_id);
-            console.log("Combined Order Details:", combinedOrderDetails); // Debugging log
-            orders.push(combinedOrderDetails);
-        }
-
-        return orders;
-    } catch (error) {
-        throw new Error(`Error getting previous orders: ${error.message}`);
-    }
-}
-
-async function createOrder(basket, basketTotal, address, postcode, user) {
+async function createOrder(basket, basketTotal, address, postcode, cardNumber, nameOnCard, expiryDate, user) {
     deliveryFee = 0.001;
     totalPrice = Number(basketTotal) + deliveryFee;
     try {
-        await pool.query(`INSERT INTO orders (user_id, store_id, subtotal, delivery_fee, total_price, status, delivery_address, delivery_postcode) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);`,
-            [user.user_id, basket[0].store_id, basketTotal, deliveryFee, totalPrice, "On the Way", address, postcode]);
+        await pool.query(`INSERT INTO orders (user_id, store_id, subtotal, delivery_fee, total_price, status, delivery_address, delivery_postcode, card_number, name_on_card, expiry_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);`,
+            [user.user_id, basket[0].store_id, basketTotal, deliveryFee, totalPrice, "On the Way", address, postcode, cardNumber, nameOnCard, expiryDate]);
     } catch (error) {
         throw new Error(`Error processing Payment: ${error.message}`);
     }
@@ -43,6 +29,22 @@ async function createOrderItems(basket, user) {
         }
     } catch (error) {
         throw new Error(`Error creating order items: ${error.message}`);
+    }
+}
+
+// GETTERS
+async function getPreviousOrders(user_id, limit = 5) {
+    try {
+        const orders = await getLastOrders(user_id, limit);
+        for (let i = 0; i < limit; i++) {
+            const combinedOrderDetails = await getCombinedOrderDetails(orders[i].order_id);
+            console.log("Combined Order Details:", combinedOrderDetails); // Debugging log
+            orders.push(combinedOrderDetails);
+        }
+
+        return orders;
+    } catch (error) {
+        throw new Error(`Error getting previous orders: ${error.message}`);
     }
 }
 

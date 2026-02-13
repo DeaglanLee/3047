@@ -10,8 +10,8 @@
         <div class="bg-dark">
             <%- include('../partials/topnavbar') %>
         </div>
-        <div id="container" class="mycontainer my-auto">
-            <div id="loginbackground">
+        <div id="container" class="mycontainer my-5">
+            <div id="loginbackground" style="height: 100%;">
                 <div class="register-content">
                     <h3 class="register-header center">Register Store!</h3>
                     <form action="/registerstore" method="POST">
@@ -156,6 +156,11 @@
                                     href="/storelogin">Log In!</a></p>
                         </div>
                     </form>
+                    <div class="center mt-3">
+                        <% if (error) { %>
+                            <p class="text-danger"><%= error %></p>
+                        <% } %>
+                    </div>
                 </div>
             </div>
         </div>

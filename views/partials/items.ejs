@@ -21,8 +21,11 @@
                     <label class="form-label me-2" for="itemQuantity">Quantity</label>
                     <input min="1" max="10" placeholder="1" type="number" id="itemQuantity" class="form-control" name="itemQuantity" />
                   </div>
-                  <% if (user) { %>
-                    <button type="submit" class="btn btn-primary">Add to Basket</button>
+                  <% if (user && !owner) { %>
+                    <a onclick="reserveItem(`<%= item.item_id %>`)" class="btn btn-primary">Reserve Item</a>
+                  <% } %>
+                  <% if (owner) { %>
+                    <a href="/store/<%= item.store_id %>/editItem/<%= item.item_id %>" class="btn btn-secondary">Edit Item</a>
                   <% } %>
                 </form>
               </div>
@@ -33,128 +36,17 @@
               </div>
       </div>
     </div>
-    <% }); %>
-      <% if (owner) { %>
-        <div class="col">
-          <div class="card h-100">
-            <img class="card-img-top" src="<%= baseUrl %>/img/stores/items/DefaultItem.png" alt=""
-              style="height: 300px;">
-            <div class="card-body">
-              <h5 class="card-title">
-                Create an Item
-              </h5>
-              <p class="card-text">
-                Create a new item to display here.
-              </p>
-              <a href="/createItem" class="btn btn-primary">Create Item</a>
-            </div>
-          </div>
-        </div>
-        <% } %>
-          <% } else { %>
-            <div class="col">
-              <div class="card h-100">
-                <img class="card-img-top" src="<%= baseUrl %>/img/stores/items/DefaultItem.png" alt=""
-                  style="height: 300px;">
-                <div class="card-body">
-                  <h5 class="card-title">
-                    No Items Available
-                  </h5>
-                  <p class="card-text">
-                    No Items have been added to this store yet.
-                  </p>
-                  <% if (owner) { %>
-                    <a href="/store/<%= store.store_id %>/createItem" class="btn btn-primary">Add Item</a>
-                    <% } %>
-                </div>
-              </div>
-            </div>
-            <% } %>
+    <% });} %>
 </div>
 
-
-
-
 <script>
-
-  // let checkboxes = document.querySelectorAll('.filter-checkbox');
-  // checkboxes.forEach(function (checkbox) {
-  //   checkbox.addEventListener('change', function () {
-  //     filterCards()
-  //     updateURL();
-  //   });
-  // });
-
-  // function filterCards() {
-  //   let selectedFilters = [];
-  //   checkboxes.forEach(checkbox => {
-  //     if (checkbox.checked) {
-  //       selectedFilters.push(checkbox.getAttribute('data-filter-value'));
-  //     }
-  //   });
-
-  //   let items = document.querySelectorAll('.item');
-
-  //   items.forEach(function (item) {
-  //     let itemCategories = item.getAttribute('data-category').split(' ');
-
-  //     let cardItems = Array.from(itemCategories).map(element => {
-  //       const [key, value] = element.split('=');
-  //       return { key, value };
-  //     });
-  //     if (selectedFilters.length === 0 || selectedFilters.every(filter => cardItems.some(cardItem => cardItem.value === filter))) {
-  //       item.style.display = 'inline-block';
-  //     } else {
-  //       item.style.display = 'none';
-  //     }
-  //   });
-  // }
-
-  // function updateURL() {
-  //   let filtersJSON = {
-  //     "sets": [],
-  //     "series": []
-  //   };
-
-  //   checkboxes.forEach(checkbox => {
-  //     if (checkbox.checked) {
-  //       let filterType = checkbox.getAttribute('data-filter-type');
-  //       let filterValue = checkbox.getAttribute('data-filter-value');
-
-
-  //       if (filterType === 'set') {
-  //         filtersJSON.sets.push(filterValue);
-  //       } else if (filterType === 'series') {
-  //         filtersJSON.series.push(filterValue);
-  //       }
-  //     }
-  //   });
-  //   let queryString = ""
-
-  //   if (filtersJSON.series.length > 0) {
-  //     if (queryString.length > 0) {
-  //       queryString += `,series=${filtersJSON.series.join(',')}`;
-  //     } else {
-  //       queryString += `series=${filtersJSON.series.join(',')}`;
-  //     }
-  //   }
-  //   if (filtersJSON.sets.length > 0) {
-  //     if (queryString.length > 0) {
-  //       queryString += `,sets=${filtersJSON.sets.join(',')}`;
-  //     } else {
-  //       queryString += `sets=${filtersJSON.sets.join(',')}`;
-  //     }
-  //   }
-  //   let finalURL = "";
-  //   if (queryString.length > 0) {
-  //     finalURL = `?${queryString}`;
-  //   } else {
-  //     finaleURL = queryString
-  //   }
-
-  //   let stateObject = { filter: filtersJSON };
-  //   let title = 'Filtered Content';
-
-  //   history.pushState(stateObject, title, window.location.pathname + finalURL);
-  // };
+  function reserveItem(itemId) {
+    fetch('/reserveItem/' + itemId, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({})
+    })
+  }
 </script>
