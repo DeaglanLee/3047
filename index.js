@@ -258,6 +258,13 @@ app.get('/store-items', async (req, res) => {
     res.render("pages/StoreItemList", { title: "Your Store Items", items: storeItems, user: user, storeAdmin: storeAdmin, baseUrl: req.baseUrl, itemAdditionals: true});
 });
 
+app.get('/allItems', async (req, res) => {
+    const user = req.session.user || false;
+    let storeAdmin = false;
+
+    res.render("pages/allItems", { title: "All Items", user: user, storeAdmin: storeAdmin, baseUrl: req.baseUrl, stores: await getStores(), itemAdditionals: false});
+});
+
 
 app.get('/logout', (req, res) => {
 	req.session.destroy((err) => {
@@ -474,7 +481,7 @@ app.post('/store/:storeId/createItem', async (req, res) => {
         saturates: req.body["saturates"].trim(),
 		sugars: req.body["sugars"].trim(),
 		salt: req.body["salt"].trim(),
-		protein: req.body["protein"].trim()
+		proteins: req.body["protein"].trim()
 	};
 	
 	// create item in database
@@ -503,7 +510,7 @@ app.post('/store/:storeId/editItem/:itemId', async (req, res) => {
         saturates: req.body["saturates"].trim(),
 		sugars: req.body["sugars"].trim(),
 		salt: req.body["salt"].trim(),
-		protein: req.body["protein"].trim()
+		proteins: req.body["protein"].trim()
 	};
 	
 	// create item in database

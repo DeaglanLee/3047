@@ -72,6 +72,10 @@
 <script type="module">
     import { itemCardHtml } from '/js/filtering/filter.js';
 
+    window.addEventListener('DOMContentLoaded', () => {
+        testFetch();
+    });
+
     // Filter values
     // Fat
     const rangeFat = document.getElementById('filter-fat');

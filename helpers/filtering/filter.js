@@ -48,7 +48,7 @@ function cardBodyHtml(item, user, storeAdmin) {
             </label>
             <input
               min="1"
-              max="10"
+              max="${item.quantity}"
               placeholder="1"
               type="number"
               id="itemQuantity-${item.item_id}"
