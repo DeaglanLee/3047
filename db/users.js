@@ -38,8 +38,13 @@ async function getUserById(userId) {
 }
 
 async function getUserBasket(userId) {
-    const basket = await pool.query(`SELECT * FROM baskets WHERE user_id = $1 AND active = true LIMIT 1;`, [userId]);
+    const basket = await pool.query(`SELECT * FROM basket_view WHERE user_id = $1 AND active = true;`, [userId]);
     return basket.rows;
+}
+
+async function getBasketTotal(userId) {
+    const total = await pool.query(`SELECT SUM(price * quantity) AS total FROM basket_view WHERE user_id = $1 AND active = true;`, [userId]);
+    return total.rows[0].total || 0;
 }
 
 async function createBasket(userId) {
@@ -54,6 +59,7 @@ async function getBasketItems(basketId) {
     const items = await pool.query(`SELECT * FROM basket_items WHERE basket_id = $1;`, [basketId]);
     return items.rows;
 }
+
 
 async function addItemToBasket(basketId, itemId, quantity) {
     try {
@@ -85,6 +91,7 @@ module.exports = {
     getUserById,
     getUserBasket,
     createBasket,
+    getBasketTotal,
     getBasketItems,
     addItemToBasket,
     removeItemFromBasket,

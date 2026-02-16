@@ -9,25 +9,51 @@
             <img class="card-img-top" src="<%= baseUrl %>/img/stores/items/DefaultItem.png" alt=""
               style="height: 300px;">
             <% } %>
-              <div class="card-body">
-                <form action="/addItemToBasket/<%= item.item_id %>" method="POST">
-                  <h5 class="card-title">
-                    <%= item.name %>
-                  </h5>
-                  <p class="card-text" name="itemPrice">
-                    <%= item.price %>
+              <div class="card-body row justify-content-around">
+                <div class="left-side col-4">
+                  <form action="/addItemToBasket/<%= item.item_id %>" method="POST">
+                    <h5 class="card-title">
+                      <%= item.name %>
+                    </h5>
+                    <p class="card-text" name="itemPrice">
+                      £<%= item.price %>
+                    </p>
+                    <div data-mdb-input-init class="form-outline d-flex flex-row mb-3" style="width: 10rem;">
+                      <label class="form-label me-2" for="itemQuantity">Quantity</label>
+                      <input min="1" max="10" placeholder="1" type="number" id="itemQuantity" class="form-control"
+                        name="itemQuantity" />
+                    </div>
+                    <% if (user && !storeAdmin) { %>
+                      <a onclick="reserveItem(`<%= item.item_id %>`)" class="btn btn-primary">Reserve Item</a>
+                      <% } %>
+                        <% if (storeAdmin) { %>
+                          <a href="/store/<%= item.store_id %>/editItem/<%= item.item_id %>"
+                            class="btn btn-secondary">Edit Item</a>
+                          <% } %>
+                  </form>
+                </div>
+                <div class="nutritional-facts col-4">
+                  <p class="card-text">
+                    <strong>Fat:</strong>
+                    <%= item.nutrition.fats %>g
                   </p>
-                  <div data-mdb-input-init class="form-outline d-flex flex-row mb-3" style="width: 10rem;">
-                    <label class="form-label me-2" for="itemQuantity">Quantity</label>
-                    <input min="1" max="10" placeholder="1" type="number" id="itemQuantity" class="form-control" name="itemQuantity" />
-                  </div>
-                  <% if (user && !owner) { %>
-                    <a onclick="reserveItem(`<%= item.item_id %>`)" class="btn btn-primary">Reserve Item</a>
-                  <% } %>
-                  <% if (owner) { %>
-                    <a href="/store/<%= item.store_id %>/editItem/<%= item.item_id %>" class="btn btn-secondary">Edit Item</a>
-                  <% } %>
-                </form>
+                  <p class="card-text">
+                    <strong>Saturates:</strong>
+                    <%= item.nutrition.saturates %>g
+                  </p>
+                  <p class="card-text">
+                    <strong>Sugar:</strong>
+                    <%= item.nutrition.sugars %>g
+                  </p>
+                  <p class="card-text">
+                    <strong>Salt:</strong>
+                    <%= item.nutrition.salt %>g
+                  </p>
+                  <p class="card-text">
+                    <strong>Protein:</strong>
+                    <%= item.nutrition.proteins %>g
+                  </p>
+                </div>
               </div>
               <div class="card-footer">
                 <small class="text-body-secondary">
@@ -37,6 +63,43 @@
       </div>
     </div>
     <% });} %>
+      <% if (itemAdditionals) { %>
+        <% if (storeAdmin) { %>
+          <div class="col">
+            <div class="card h-100">
+              <img class="card-img-top" src="<%= baseUrl %>/img/stores/items/DefaultItem.png" alt=""
+                style="height: 300px;">
+              <div class="card-body">
+                <h5 class="card-title">
+                  Create an Item
+                </h5>
+                <p class="card-text">
+                  Create a new item to display here.
+                </p>
+                <a href="/store/<%= storeAdmin[0].store_id %>/createItem" class="btn btn-primary">Create Item</a>
+              </div>
+            </div>
+          </div>
+          <% }} %>
+            <% if (!items || items.length===0) { %>
+              <div class="col">
+                <div class="card h-100">
+                  <img class="card-img-top" src="<%= baseUrl %>/img/stores/items/DefaultItem.png" alt=""
+                    style="height: 300px;">
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      No Items Available
+                    </h5>
+                    <p class="card-text">
+                      No Items have been added to this store yet.
+                    </p>
+                    <% if (storeAdmin) { %>
+                      <a href="/store/<%= storeAdmin[0].store_id %>/createItem" class="btn btn-primary">Add Item</a>
+                      <% } %>
+                  </div>
+                </div>
+              </div>
+              <% } %>
 </div>
 
 <script>

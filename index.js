@@ -28,7 +28,8 @@ const {
 	getUserBasket,
 	createBasket,
 	getBasketItems,
-	addItemToBasket,
+    getBasketTotal,
+    addItemToBasket,
 	removeItemFromBasket,
 	updateBasketItemQuantity
 } =  require("./db/users");
@@ -37,6 +38,7 @@ const {verifyUserLogin, registerUser} = require("./backend/auth");
 const { get } = require('http');
 const e = require('express');
 const { error } = require('console');
+const { isStoreAdmin } = require('./helpers');
 
 const port = 3000;
 
@@ -57,53 +59,61 @@ app.use(
 
 // GET routes
 // Home route
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
 	const user = req.session.user || false
+    let storeAdmin = await isStoreAdmin(user?.user_id) || false;
 	//console.log("USER SESSION:", req.session.user);
-    res.render("pages/home", { title: "Home", user: user });
+    res.render("pages/home", { title: "Home", user: user, storeAdmin: storeAdmin });
 });
 
 // User routes
-app.get('/login', (req, res) => {
+app.get('/login', async (req, res) => {
 	const user = req.session.user || false;
+    let storeAdmin = await isStoreAdmin(user?.user_id) || false;
 	const error = false;
-	res.render("pages/login", {title: "Login", user: user, error: error});
+	res.render("pages/login", {title: "Login", user: user, error: error, storeAdmin: storeAdmin});
 });
 
-app.get('/signup', (req, res) => {
+app.get('/signup', async (req, res) => {
 	const user = req.session.user || false;
+    let storeAdmin = await isStoreAdmin(user?.user_id) || false;
 	const error = false;
-	res.render("pages/signup", { title: "Signup", user: user, error: error });
+	res.render("pages/signup", { title: "Signup", user: user, error: error, storeAdmin: storeAdmin });
 });
 
 // Store routes
-app.get('/registerstore', (req, res) => {
+app.get('/registerstore', async (req, res) => {
 	const user = req.session.user || false;
+    let storeAdmin = await isStoreAdmin(user?.user_id) || false;
 	const error = false;
-	res.render("pages/registerStore", {title: "Register Store", user: user, error: error });
+	res.render("pages/registerStore", {title: "Register Store", user: user, error: error, storeAdmin: storeAdmin});
 });
 
-app.get('/storelogin', (req, res) => {
+app.get('/storelogin', async (req, res) => {
 	const user = req.session.user || false;
+    let storeAdmin = await isStoreAdmin(user?.user_id) || false;
 	const error = false;
-	res.render("pages/login", {title: "Store Login", user: user, error: error });
+	res.render("pages/login", {title: "Store Login", user: user, error: error, storeAdmin: storeAdmin});
 });
 
-app.get('/storesignup', (req, res) => {
+app.get('/storesignup', async (req, res) => {
 	const user = req.session.user || false;
+    let storeAdmin = await isStoreAdmin(user?.user_id) || false;
 	const error = false;
-	res.render("pages/signup", { title: "Signup", user: user, error: error });
+	res.render("pages/signup", { title: "Signup", user: user, error: error, storeAdmin: storeAdmin });
 });
 
 app.get('/stores', async (req, res) => {
 	const user = req.session.user || false;
+    let storeAdmin = await isStoreAdmin(user?.user_id) || false;
 	const stores = await getStoreList();
-	res.render("pages/storelist", { title: "Stores", stores: stores, user: user });
+	res.render("pages/storelist", { title: "Stores", stores: stores, user: user, storeAdmin: storeAdmin });
 });
 
 app.get('/profile/:userId', async (req, res) => {
 	// get user profile info
 	const userId = req.params.userId;
+    let storeAdmin = await isStoreAdmin(user?.user_id) || false;
 	let owner = false;
 
 
@@ -127,12 +137,22 @@ app.get('/profile/:userId', async (req, res) => {
 	const orders = await getPreviousOrders(userId);
 	pageUser.orders = orders;
 	console.log("Orders:", pageUser.orders);
-	res.render("pages/profile", {title: `${pageUser.username}'s Profile`, user: req.session.user || false, pageUser: pageUser, owner: owner  });
+	res.render("pages/profile", {title: `${pageUser.username}'s Profile`, user: req.session.user || false, pageUser: pageUser, owner: owner, storeAdmin: storeAdmin });
 
 });
 
 app.get('/store/:storeId', async (req, res) => {
-	const basket = req.session.basket || [];
+    const user = req.session.user || false;
+    let storeAdmincheck = await isStoreAdmin(user?.user_id) || false;
+    let storeAdmin;
+
+    if (storeAdmincheck) {
+        storeAdmin = await getStoreUsersByUserId(user.user_id);
+
+        if (storeAdmin[0].store_id !== req.params.storeId) {
+            return res.render("pages/storeError", {title: "Store Error", user: req.session.user || false, error: "You do not have permission to access this store.", storeAdmin: storeAdmin})
+        }
+    }
 
 	// // Only allow users to view stores which they have items in their basket from
 	// if(basket.length > 0 && basket[0].store_id !== req.params.storeId){
@@ -142,12 +162,11 @@ app.get('/store/:storeId', async (req, res) => {
 	// get Store and items info
 	const store = await getStoreById(req.params.storeId);
 	const items = await getItemsByStoreId(req.params.storeId);
-	const storeUserId = (await getStoreUsers(store.store_id));
+	// const storeUserId = (await getStoreUsers(store.store_id));
 	const sessionUserId = req.session?.user?.user_id;
 
-	const owner = storeUserId.some(storeUsers => storeUsers.user_id === sessionUserId);
 
-	res.render("pages/store", {title: `${store.name}`, user: req.session.user || false, items: items, baseUrl: req.baseUrl, owner: owner, store: store})
+	res.render("pages/store", {title: `${store.name}`, user: req.session.user || false, items: items, baseUrl: req.baseUrl, store: store, storeAdmin: storeAdmin, itemAdditionals: true});
 
 });
 
@@ -155,8 +174,16 @@ app.get('/store/:storeId/createItem', async (req, res) => {
 	const error = false;
 	const storeId = req.params.storeId;
 
+    const user = req.session.user || false;
+    let storeAdmin = await isStoreAdmin(user?.user_id) || false;
+
 	const store = await getStoreById(storeId);
 	const storeUserId = (await getStoreUsers(store.store_id));
+
+    if (!storeAdmin) {
+        return res.render("pages/storeError", {title: "Store Error", user: req.session.user || false, error: "Only store admins can access this page.", storeAdmin: storeAdmin})
+    }
+
 	const item = null;
 
 	const sessionUserId = req.session?.user?.user_id;
@@ -166,13 +193,20 @@ app.get('/store/:storeId/createItem', async (req, res) => {
 	}
 
 	const title = `Create Item - ${store.name}`;
-	res.render("pages/createEditItem", {title: title, user: req.session.user || false, store: store, error: error, item: item, type: "Create"});
+	res.render("pages/createEditItem", {title: title, user: req.session.user || false, store: store, error: error, item: item, type: "Create", storeAdmin: storeAdmin});
 });
 
 app.get('/store/:storeId/editItem/:itemId', async (req, res) => {
 	const error = false;
 	const storeId = req.params.storeId;
 	const itemId = req.params.itemId;
+
+    const user = req.session.user || false;
+    let storeAdmin = await isStoreAdmin(user?.user_id) || false;
+
+    if (!storeAdmin) {
+        return res.render("pages/storeError", {title: "Store Error", user: req.session.user || false, error: "Only store admins can access this page.", storeAdmin: storeAdmin})
+    }
 
 	const store = await getStoreById(storeId);
 	const storeUserId = (await getStoreUsers(store.store_id));
@@ -181,33 +215,47 @@ app.get('/store/:storeId/editItem/:itemId', async (req, res) => {
 	const sessionUserId = req.session?.user?.user_id;
 	const owner = storeUserId.some(storeUsers => storeUsers.user_id === sessionUserId);
 	if (!owner) {
-		return  res.render("pages/storeError", {title: "Store Error", user: req.session.user || false, error: "You do not have permission to access this page."})
+		return  res.render("pages/storeError", {title: "Store Error", user: req.session.user || false, error: "You do not have permission to access this page.", storeAdmin: storeAdmin})
 	}
 
 	const title = `Edit Item - ${store.name}`;
-	res.render("pages/createEditItem", {title: title, user: req.session.user || false, store: store, error: error, item: item, type: "Edit"})
+	res.render("pages/createEditItem", {title: title, user: req.session.user || false, store: store, error: error, item: item, type: "Edit", storeAdmin: storeAdmin})
 });
 
 // Items
 app.get('/items', async (req, res) => {
 	const user = req.session.user || false;
+    let storeAdmin = false;
+
+    if (user) {
+        storeAdmin = await isStoreAdmin(user?.user_id) || false;
+    }
+
+    if (storeAdmin) {
+        storeAdmin = await getStoreUsersByUserId(user.user_id);
+    }
 
 	const stores = await getStores();
-
-	// check if user is owner of any stores
-	let isOwner = false;	
-	for (const store of stores) {
-		const storeUsers = await getStoreUsers(store.store_id);
-		if (storeUsers.some(storeUser => storeUser.user_id === user.user_id)) {
-			isOwner = true;
-			break;
-		}
-	}
 	
-	req.session.owner = isOwner;
 	const items = await getAllItems();
-	console.log("ALL ITEMS:", items[1].updated_at);
-	res.render("pages/itemlist", { title: "Items", items: items, user: user, owner: isOwner, baseUrl: req.baseUrl, stores: stores});
+	//console.log("ALL ITEMS:", items);
+	res.render("pages/itemlist", { title: "Items", items: items, user: user, storeAdmin: storeAdmin, baseUrl: req.baseUrl, stores: stores, itemAdditionals: false});
+});
+
+app.get('/store-items', async (req, res) => {
+    const user = req.session.user || false;
+    let storeAdmin = await isStoreAdmin(user?.user_id) || false;
+    console.log("STORE ADMIN:", storeAdmin);
+    if (!storeAdmin) {
+        return res.render("pages/storeError", {title: "Store Error", user: req.session.user || false, error: "Only store admins can access this page.", storeAdmin: storeAdmin})
+    }
+
+    storeAdmin = await getStoreUsersByUserId(user.user_id);
+
+    console.log("STORE ADMIN USER:", storeAdmin);
+    const storeItems = await getItemsByStoreId(storeAdmin[0].store_id);
+
+    res.render("pages/StoreItemList", { title: "Your Store Items", items: storeItems, user: user, storeAdmin: storeAdmin, baseUrl: req.baseUrl, itemAdditionals: true});
 });
 
 
@@ -223,14 +271,25 @@ app.get('/logout', (req, res) => {
 // BASKET and ORDER routes
 app.get('/basket', async (req, res) => {
 	const user = req.session.user || false;
-	const userBasket = await getUserBasket(req.session.user.user_id);
-	const basketItems = userBasket.length > 0 ? await getBasketItems(userBasket[0].basket_id) : [];
+
+    if (!user) {
+        return res.render("pages/storeError", {title: "Store Error", user: req.session.user || false, error: "You must be logged in to view your basket.", storeAdmin: false})
+    }
+
+    const storeAdmin = await isStoreAdmin(user?.user_id) || false;
+
+    if (storeAdmin) {
+        return res.render("pages/storeError", {title: "Store Error", user: req.session.user || false, error: "Store admins cannot have a basket.", storeAdmin: storeAdmin})
+    }
+
+	const userBasket = await getUserBasket(user.user_id);
 	console.log("USER BASKET:", userBasket);
-	console.log("BASKET ITEMS:", basketItems);
+
+    const basketTotal = await getBasketTotal(user.user_id);
 
 	// console.log("Basket: ", basket)
 
-	res.render("pages/basket", { title: "Your Basket", user: user, basket: userBasket, basketItems: basketItems, basketTotal: req.session.basketTotal || 0 });
+	res.render("pages/basket", { title: "Your Basket", user: user, basket: userBasket, basketTotal: basketTotal , storeAdmin: storeAdmin});
 });
 
 app.get('/checkout', async (req, res) => {
@@ -238,7 +297,7 @@ app.get('/checkout', async (req, res) => {
 	const userBasket = await getUserBasket(req.session.user.user_id);
 	const error = false;
 
-	res.render("pages/checkout", { title: "Checkout", user: user, basket: userBasket, basketTotal: req.session.basketTotal || 0, error: error });
+	res.render("pages/checkout", { title: "Checkout", user: user, basket: userBasket, basketTotal: req.session.basketTotal || 0, error: error, storeAdmin: storeAdmin });
 });
 
 
@@ -254,7 +313,7 @@ app.post('/login', async (req, res) => {
 	try {
 		const {user, result} = await verifyUserLogin(username, password)
 		if (!result) {
-			res.render("pages/login", {title: "Login", user: req.session.user || false, error: "Invalid username or password"})
+			res.render("pages/login", {title: "Login", user: req.session.user || false, error: "Invalid username or password", storeAdmin: false})
 		}else{
 			req.session.user = user;
 			res.redirect('/');
@@ -262,7 +321,7 @@ app.post('/login', async (req, res) => {
 
 	} catch (error) {
 		console.log(error)
-		res.render("pages/login", {title: "Login", user: req.session.user, error: error})
+		res.render("pages/login", {title: "Login", user: req.session.user, error: error, storeAdmin: false})
 	}
 });
 
@@ -412,14 +471,19 @@ app.post('/store/:storeId/createItem', async (req, res) => {
 	let file = req.body["file"] || null;
 	let nutrition = {
 		fats: req.body["fats"].trim(),
+        saturates: req.body["saturates"].trim(),
 		sugars: req.body["sugars"].trim(),
-		carbs: req.body["carbs"].trim()
+		salt: req.body["salt"].trim(),
+		protein: req.body["protein"].trim()
 	};
 	
 	// create item in database
 	try {
 		await createItem(storeId, itemName, nutrition, price, file);
-		res.redirect(`/store/${storeId}`);
+        // get location of where the user came from to redirect back to that page after creating item
+        const redirectTo = req.get('referer') || `/`;
+
+		res.redirect(redirectTo);
 	} catch (error) {
 		console.log(error)
 		const store = await getStoreById(storeId);
@@ -436,8 +500,10 @@ app.post('/store/:storeId/editItem/:itemId', async (req, res) => {
 	let file = req.body["file"] || null;
 	let nutrition = {
 		fats: req.body["fats"].trim(),
+        saturates: req.body["saturates"].trim(),
 		sugars: req.body["sugars"].trim(),
-		carbs: req.body["carbs"].trim()
+		salt: req.body["salt"].trim(),
+		protein: req.body["protein"].trim()
 	};
 	
 	// create item in database
@@ -452,6 +518,12 @@ app.post('/store/:storeId/editItem/:itemId', async (req, res) => {
 });
 
 app.post('/orderItems/:itemid', async (req, res) => {
+    const user = req.session.user || false;
+    const storeAdmin =  await isStoreAdmin(user?.user_id) || false;
+
+    if (storeAdmin) {
+        return res.render("pages/storeError", {title: "Store Error", user: req.session.user || false, error: "Store admins cannot place orders.", storeAdmin: storeAdmin})
+    }
 	// process order from basket in session
 	const basket = req.session.basket || {};
 	console.log("BASKET TO ORDER:", basket);
@@ -464,6 +536,13 @@ app.post('/orderItems/:itemid', async (req, res) => {
 
 // basket and order routes
 app.post('/reserveItem/:itemId', async (req, res) => {
+    const user = req.session.user || false;
+    const storeAdmin =  await isStoreAdmin(user?.user_id) || false;
+
+    if (storeAdmin) {
+        return res.render("pages/storeError", {title: "Store Error", user: req.session.user || false, error: "Store admins cannot reserve items.", storeAdmin: storeAdmin})
+    }
+
 	const itemId = req.params.itemId;
 	const quantity = req.body.itemQuantity || 1;
 
@@ -498,7 +577,7 @@ app.post('/removeItemFromBasket/:itemId', async (req, res) => {
 	const itemId = req.params.itemId;
 	
 	// find item in user Basket
-	const basket = getUserBasket(req.session.user.user_id);
+	const basket = await getUserBasket(req.session.user.user_id);
 	if (basket.length < 1) {
 		return res.redirect('/basket');
 	}
@@ -559,13 +638,41 @@ app.post('/processPayment', async (req, res) => {
 app.get('/api/items', async (req, res) => {
 	const query = req.query || null;
 	const fat = query.fat || undefined;
+    const saturates = query.saturates || undefined;
 	const sugar = query.sugar || undefined;
-	const carbs = query.carbs || undefined;
+    const salt = query.salt || undefined;
 	const protein = query.protein || undefined;
 	const storeId = query.store || undefined;
 
 	console.log("QUERY:", query);
-	const items = await getItemByFilter(fat, sugar, carbs, protein, storeId);
+	const items = await getItemByFilter(fat, saturates, sugar, salt, protein, storeId);
+	console.log("FILTERED ITEMS:", items);
+	if (items.length < 1) {
+		return res.json({ error: "No items found matching filter criteria." });
+	}
+	res.json(items);
+});
+
+app.get('/api/store-items', async (req, res) => {
+	const query = req.query || null;
+	const fat = query.fat || undefined;
+    const saturates = query.saturates || undefined;
+	const sugar = query.sugar || undefined;
+    const salt = query.salt || undefined;
+	const protein = query.protein || undefined;
+	const storeId = query.store || undefined;
+
+    console.log("STORE ITEMS variables:", fat, saturates, sugar, salt, protein, storeId);
+
+    // Only allow store admins to access this endpoint
+    const user = req.session.user || false;
+    const storeAdmin =  await isStoreAdmin(user?.user_id) || false;
+    if (!storeAdmin) {
+        return res.json({ error: "Only store admins can access this endpoint." })
+    }
+    
+	//console.log("QUERY:", query);
+	const items = await getItemByFilter(fat, saturates, sugar,  salt, protein, storeId);
 	console.log("FILTERED ITEMS:", items);
 	if (items.length < 1) {
 		return res.json({ error: "No items found matching filter criteria." });

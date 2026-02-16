@@ -13,10 +13,8 @@
             <div class="content-container mx-5 mt-5 row">
                 <div class="container-fluid d-flex justify-content-center align-items-center position-relative"
                     style="height: 90px;">
-                    <h1 class="m-0">
-                        <%= store.name %>
-                    </h1>
-                    <% if (user) { %>
+                    <h1 class="m-0"><%= store.name %></h1>
+                    <% if (user && !storeAdmin) { %>
                         <a href="/basket"
                             class="btn btn-primary position-absolute top-50 end-0 translate-middle-y me-3">
                             Your Basket

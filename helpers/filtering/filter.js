@@ -1,66 +1,119 @@
 console.log("filter.js loaded");
 
-export function itemCardHtml(item, user, owner) {
+export function itemCardHtml(item, user = false, storeAdmin = false, baseUrl = "") {
   return `
-        <div class="card h-100">
-            ${cardImgHtml(item)}
-            ${cardBodyHtml(item, user, owner)}
-            ${cardFooterHtml(item)}
-        </div>
-    `;
+    <div class="col">
+      <div class="card h-100">
+        ${cardImgHtml(item, baseUrl)}
+        ${cardBodyHtml(item, user, storeAdmin)}
+        ${cardFooterHtml(item)}
+      </div>
+    </div>
+  `;
 }
 
+/* ---------- Image ---------- */
+function cardImgHtml(item, baseUrl) {
+  const imgSrc = item.picture
+    ? `${baseUrl}/img/stores/items/${item.picture}`
+    : `${baseUrl}/img/stores/items/DefaultItem.png`;
 
-function cardImgHtml(item) {
-    const imgsrc = item.picture
-    ? `/img/stores/items/${item.picture}`
-    : `/img/stores/items/DefaultItem.png`;
-
-    return `<img class="card-img-top" src="${imgsrc}" alt="${item.name} Image" style="height: 300px;">`;
+  return `
+    <img 
+      class="card-img-top" 
+      src="${imgSrc}" 
+      alt="${item.name}" 
+      style="height: 300px;"
+    >
+  `;
 }
 
-function cardBodyHtml(item, user, owner) {
-    return `<div class="card-body">
-    <h5 class="card-title">${item.name}</h5>
-    <p class="card-text" name="itemPrice">Price: £${item.price}</p>
-    <div data-mdb-input-init class="form-outline d-flex flex-row mb-3" style="width: 10rem;">
-                <label class="form-label me-2" for="itemQuantity">Quantity</label>
-                <input min="1" max="10" placeholder="1" type="number" id="itemQuantity" class="form-control"
-                  name="itemQuantity" />
-              </div>
-            
-            ${cardButtonsHtml(user, owner, item)}
-        </div>
-              `;
+/* ---------- Body ---------- */
+function cardBodyHtml(item, user, storeAdmin) {
+  return `
+    <div class="card-body row justify-content-around">
+
+      <!-- LEFT SIDE -->
+      <div class="left-side col-4">
+        <form>
+          <h5 class="card-title">${item.name}</h5>
+
+          <p class="card-text" name="itemPrice">
+            £${item.price}
+          </p>
+
+          <div data-mdb-input-init class="form-outline d-flex flex-row mb-3" style="width: 10rem;">
+            <label class="form-label me-2" for="itemQuantity-${item.item_id}">
+              Quantity
+            </label>
+            <input
+              min="1"
+              max="10"
+              placeholder="1"
+              type="number"
+              id="itemQuantity-${item.item_id}"
+              class="form-control"
+              name="itemQuantity"
+            />
+          </div>
+
+          ${cardButtonsHtml(item, user, storeAdmin)}
+        </form>
+      </div>
+
+      <!-- RIGHT SIDE -->
+      <div class="nutritional-facts col-4">
+        ${cardNutritionHtml(item)}
+      </div>
+
+    </div>
+  `;
 }
 
-function cardButtonsHtml(user, owner, item) {
+/* ---------- Buttons ---------- */
+function cardButtonsHtml(item, user, storeAdmin) {
+  if (user && !storeAdmin) {
     return `
-        ${owner ? ` 
-            <a href="/store/${item.store_id}/editItem/${item.item_id}" class="btn btn-secondary">
-                Edit Item
-            </a>
-        ` : `
-        ${user ? `
-            <button type="submit" class="btn btn-primary">
-                Reserve Item
-            </button>
-        `: ``}
-        `}
+      <a onclick="reserveItem('${item.item_id}')" class="btn btn-primary">
+        Reserve Item
+      </a>
     `;
+  }
+
+  if (storeAdmin) {
+    return `
+      <a 
+        href="/store/${item.store_id}/editItem/${item.item_id}" 
+        class="btn btn-secondary"
+      >
+        Edit Item
+      </a>
+    `;
+  }
+
+  return ``;
 }
 
+/* ---------- Nutrition ---------- */
 function cardNutritionHtml(item) {
-    const nutrition = item.nutrition;
-    return `<ul class="list-group list-group-flush">
-      ${nutrition.map(n => `<li class="list-group-item">${n.name}: ${n.value}</li>`).join('')}
-    </ul>`;
+  if (!item.nutrition) return ``;
+
+  return `
+    <p class="card-text"><strong>Fat:</strong> ${item.nutrition.fats}g</p>
+    <p class="card-text"><strong>Saturates:</strong> ${item.nutrition.saturates}g</p>
+    <p class="card-text"><strong>Sugar:</strong> ${item.nutrition.sugars}g</p>
+    <p class="card-text"><strong>Salt:</strong> ${item.nutrition.salt}g</p>
+    <p class="card-text"><strong>Protein:</strong> ${item.nutrition.proteins}g</p>
+  `;
 }
 
+/* ---------- Footer ---------- */
 function cardFooterHtml(item) {
-    return `
-        <div class="card-footer">
-            <small class="text-body-secondary">${item.updated_at}</small>
-        </div>
-        `;
+  return `
+    <div class="card-footer">
+      <small class="text-body-secondary">
+        ${item.updated_at}
+      </small>
+    </div>
+  `;
 }

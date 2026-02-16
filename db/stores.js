@@ -82,7 +82,7 @@ async function getStoreUsers(storeId) {
 }
 
 async function getStoreUsersByUserId(userId) {
-    const storeUsers = await pool.query(`SELECT * FROM store_users WHERE user_id = '${userId}';`);
+    const storeUsers = await pool.query(`SELECT * FROM stores WHERE store_admin = '${userId}';`);
     return storeUsers.rows;
 }
 

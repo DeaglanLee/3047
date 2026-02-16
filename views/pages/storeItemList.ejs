@@ -11,6 +11,8 @@
             <%- include('../partials/topnavbar') %>
         </div>
         <div class="content-container mx-5 mt-5 row">
+            <!-- Hidden store id -->
+            <div hidden id="store-id" data-store-id="<%= storeAdmin[0].store_id %>"></div>
             <div class="container-fluid d-flex justify-content-center align-items-center position-relative"
                 style="height: 90px;">
                 <h1 class="m-0">All Items for <%= storeAdmin[0].name %></h1>
@@ -24,11 +26,11 @@
                             placeholder="3" name="fat" min="0" max="10">
                         <output for="filter-fat" id="range-fat" aria-hidden="true"></output>
                     </div>
-                    <div class="filter-carbs me-4">
-                        <label for="filter-carbs" class="form-label">Carbs</label>
-                        <input type="range" class="form-range" id="filter-carbs"
-                            placeholder="3" name="carbs" min="0" max="10">
-                        <output for="filter-carbs" id="range-carbs" aria-hidden="true"></output>
+                    <div class="filter-saturates me-4">
+                        <label for="filter-saturates" class="form-label">Saturates</label>
+                        <input type="range" class="form-range" id="filter-saturates"
+                            placeholder="3" name="saturates" min="0" max="10">
+                        <output for="filter-saturates" id="range-saturates" aria-hidden="true"></output>
                     </div>
                     <div class="filter-sugar me-4">
                         <label for="filter-sugar" class="form-label">Sugar</label>
@@ -36,13 +38,18 @@
                             placeholder="3" name="sugar" min="0" max="10">
                         <output for="filter-sugar" id="range-sugar" aria-hidden="true"></output>
                     </div>
+                    <div class="filter-salt me-4">
+                        <label for="filter-salt" class="form-label">salt</label>
+                        <input type="range" class="form-range" id="filter-salt"
+                            placeholder="3" name="salt" min="0" max="10">
+                        <output for="filter-salt" id="range-salt" aria-hidden="true"></output>
+                    </div>
                     <div class="filter-protein me-4">
                         <label for="filter-protein" class="form-label">Protein</label>
                         <input type="range" class="form-range" id="filter-protein"
                             placeholder="3" name="protein" min="0" max="10">
                         <output for="filter-protein" id="range-protein" aria-hidden="true"></output>
                     </div>
-
                 </div>
             
             <%- include('../partials/items') %>
@@ -70,25 +77,14 @@
         testFetch();
     });
 
-    // Carbs
-    const rangeCarbs = document.getElementById('filter-carbs');
-    const rangeOutputCarbs = document.getElementById('range-carbs');
+    // Saturates
+    const rangeSaturates = document.getElementById('filter-saturates');
+    const rangeOutputSaturates = document.getElementById('range-saturates');
 
-    rangeOutputCarbs.textContent = rangeCarbs.value;
+    rangeOutputSaturates.textContent = rangeSaturates.value;
 
-    rangeCarbs.addEventListener('input', function() {
-        rangeOutputCarbs.textContent = this.value;
-        testFetch();
-    });
-
-    // Protein
-    const rangeProtein = document.getElementById('filter-protein');
-    const rangeOutputProtein = document.getElementById('range-protein');
-
-    rangeOutputProtein.textContent = rangeProtein.value;
-
-    rangeProtein.addEventListener('input', function() {
-        rangeOutputProtein.textContent = this.value;
+    rangeSaturates.addEventListener('input', function() {
+        rangeOutputSaturates.textContent = this.value;
         testFetch();
     });
 
@@ -103,11 +99,27 @@
         testFetch();
     });
 
-    // store filter
-    const filterStore = document.getElementById('filter-store');
-    filterStore.addEventListener('change', function() {
+    // Salt
+    const rangeSalt = document.getElementById('filter-salt');
+    const rangeOutputSalt = document.getElementById('range-salt');
+
+    rangeOutputSalt.textContent = rangeSalt.value;
+
+    rangeSalt.addEventListener('input', function() {
+        rangeOutputSalt.textContent = this.value;
         testFetch();
-    }); 
+    });
+
+    // Protein
+    const rangeProtein = document.getElementById('filter-protein');
+    const rangeOutputProtein = document.getElementById('range-protein');
+
+    rangeOutputProtein.textContent = rangeProtein.value;
+
+    rangeProtein.addEventListener('input', function() {
+        rangeOutputProtein.textContent = this.value;
+        testFetch();
+    });
 
 
 
@@ -129,13 +141,14 @@
     async function testFetch() {
     const params = new URLSearchParams({
         fat: rangeOutputFat.textContent,
-        carbs: rangeOutputCarbs.textContent,
+        saturates: rangeOutputSaturates.textContent,
         sugar: rangeOutputSugar.textContent,
+        salt: rangeOutputSalt.textContent,
         protein: rangeOutputProtein.textContent,
-        store: filterStore.value
+        store: document.getElementById('store-id').dataset.storeId
     });
 
-    const res = await fetch(`/api/items?${params.toString()}`);
+    const res = await fetch(`/api/store-items?${params.toString()}`);
     const data = await res.json();
 
     render(data);

@@ -18,7 +18,7 @@ async function updateItem(itemId, itemName, nutrition, price, picture = null) {
     }   
 }
 
-async function getItemByFilter(fat = undefined, sugar = undefined, carbs = undefined, protein = undefined, storeId = undefined) {
+async function getItemByFilter(fat = undefined, saturates = undefined,sugar = undefined, salt = undefined, protein = undefined, storeId = undefined) {
     let query = "SELECT * FROM items WHERE 1=1";
     const values = [];
 
@@ -27,18 +27,23 @@ async function getItemByFilter(fat = undefined, sugar = undefined, carbs = undef
         values.push(fat);
     }
 
+    if (saturates !== undefined) {
+        query += ` AND (nutrition->>'saturates')::numeric <= $${values.length + 1}`;
+        values.push(saturates);
+    }
+
     if (sugar !== undefined) {
         query += ` AND (nutrition->>'sugars')::numeric <= $${values.length + 1}`;
         values.push(sugar);
     }
 
-    if (carbs !== undefined) {
-        query += ` AND (nutrition->>'carbs')::numeric <= $${values.length + 1}`;
-        values.push(carbs);
+    if (salt !== undefined) {
+        query += ` AND (nutrition->>'salt')::numeric <= $${values.length + 1}`;
+        values.push(salt);
     }
 
     if (protein !== undefined) {
-        query += ` AND (nutrition->>'protein')::numeric <= $${values.length + 1}`;
+        query += ` AND (nutrition->>'proteins')::numeric <= $${values.length + 1}`;
         values.push(protein);
     }
 
