@@ -27,17 +27,21 @@
             <input type="range" class="form-range" id="filter-protein" placeholder="3" name="protein" min="0" max="10">
             <output for="filter-protein" id="range-protein" aria-hidden="true"></output>
         </div>
-        <div class="filter-store me-4">
-            <label for="filter-store" class="form-label">Store</label>
-            <select class="form-select" id="filter-store" name="store">
-                <option value="">All Stores</option>
-                <% stores.forEach(store=> { %>
-                    <option value="<%= store.store_id %>">
-                        <%= store.name %>
-                    </option>
-                    <% }) %>
-            </select>
-        </div>
+
+        <%- if (includeStoreFilter) { %>
+            <div class="filter-store me-4">
+                <label for="filter-store" class="form-label">Store</label>
+                <select class="form-select" id="filter-store" name="store">
+                    <option value="">All Stores</option>
+                    <% stores.forEach(store=> { %>
+                        <option value="<%= store.store_id %>">
+                            <%= store.name %>
+                        </option>
+                        <% }) %>
+                </select>
+            </div>
+        <% } %>
+
     </div>
 
     <!-- list of cards -->
@@ -55,13 +59,13 @@
     })
   }
 </script>
-</div>
 
 <script type="module">
     import { itemCardHtml } from '/js/filtering/filter.js';
+    // <%- include('../helpers/itemCard') %>
 
     window.addEventListener('DOMContentLoaded', () => {
-        testFetch();
+        renderItemList();
     });
 
     // Filter values
@@ -73,7 +77,7 @@
 
     rangeFat.addEventListener('input', function () {
         rangeOutputFat.textContent = this.value;
-        testFetch();
+        renderItemList();
     });
 
     // Saturates
@@ -84,7 +88,7 @@
 
     rangeSaturates.addEventListener('input', function () {
         rangeOutputSaturates.textContent = this.value;
-        testFetch();
+        renderItemList();
     });
 
     // Sugar
@@ -95,7 +99,7 @@
 
     rangeSugar.addEventListener('input', function () {
         rangeOutputSugar.textContent = this.value;
-        testFetch();
+        renderItemList();
     });
 
     // Salt
@@ -106,7 +110,7 @@
 
     rangeSalt.addEventListener('input', function () {
         rangeOutputSalt.textContent = this.value;
-        testFetch();
+        renderItemList();
     });
 
     // Protein
@@ -117,13 +121,13 @@
 
     rangeProtein.addEventListener('input', function () {
         rangeOutputProtein.textContent = this.value;
-        testFetch();
+        renderItemList();
     });
 
     // store filter
     const filterStore = document.getElementById('filter-store');
     filterStore.addEventListener('change', function () {
-        testFetch();
+        renderItemList();
     });
 
 
@@ -143,7 +147,7 @@
 
 
 
-    async function testFetch() {
+    async function renderItemList() {
         const params = new URLSearchParams({
             fat: rangeOutputFat.textContent,
             saturates: rangeOutputSaturates.textContent,

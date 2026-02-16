@@ -17,7 +17,8 @@
                 style="height: 90px;">
                 <h1 class="m-0">All Items for <%= storeAdmin[0].name %></h1>
             </div>
-            <div class="filter flex">
+            <%- include('../partials/itemList', { includeStoreFilter: false }) %>
+            <!-- <div class="filter flex">
                 <h4>Filter by Nutrition</h4>
                 <div class="d-flex mb-3">
                     <div class="filter-fat me-4">
@@ -51,9 +52,9 @@
                         <output for="filter-protein" id="range-protein" aria-hidden="true"></output>
                     </div>
                 </div>
-            
+
             <%- include('../partials/items') %>
-            </div>
+            </div> -->
         </div>
     <div>
 </body>
@@ -89,7 +90,7 @@
     });
 
     // Sugar
-    const rangeSugar = document.getElementById('filter-sugar'); 
+    const rangeSugar = document.getElementById('filter-sugar');
     const rangeOutputSugar = document.getElementById('range-sugar');
 
     rangeOutputSugar.textContent = rangeSugar.value;
