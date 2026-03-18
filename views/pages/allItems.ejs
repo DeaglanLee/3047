@@ -15,11 +15,15 @@
                 style="height: 90px;">
                 <h1 class="m-0">All Items</h1>
             </div>
-            
-            <%- include('../partials/itemList') %>
-            
+
+            <%- include('../partials/itemList', { includeStoreFilter: true, endpoint: '/api/items' }) %>
+
         </div>
-    <div>
+        <div>
 </body>
+
+<script>
+</script>
+
 
 </html>

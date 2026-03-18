@@ -9,10 +9,45 @@ async function createItem(storeId, itemName, nutrition, price, picture = null) {
     }
 }
 
-async function updateItem(itemId, itemName, nutrition, price, picture = null) {
+async function updateItem(itemId = undefined, itemName = undefined, nutrition = undefined, price = undefined, picture = null, quantity = undefined) {
+    let query = "UPDATE items SET";
+    const values = [];
+    let setClauses = [];
+
+    if (itemName !== undefined) {
+        setClauses.push(`name = $${values.length + 1}`);
+        values.push(itemName);
+    }
+
+    if (nutrition !== undefined) {
+        setClauses.push(`nutrition = $${values.length + 1}`);
+        values.push(nutrition);
+    }
+    
+    if (price !== undefined) {
+        setClauses.push(`price = $${values.length + 1}`);
+        values.push(price);
+    }
+
+    if (picture !== undefined) {
+        setClauses.push(`picture = $${values.length + 1}`);
+        values.push(picture);
+    }
+
+    if (quantity !== undefined) {
+        setClauses.push(`quantity = $${values.length + 1}`);
+        values.push(quantity);
+    }
+
+    if (setClauses.length === 0) {
+        throw new Error("No fields to update");
+    }
+
+    query += " " + setClauses.join(", ") + ` WHERE item_id = $${values.length + 1}`;
+    values.push(itemId);
+
     try {
-        await pool.query(`UPDATE items SET name = $1, nutrition = $2, price = $3, picture = $4 WHERE item_id = $5;`,
-        [itemName, nutrition, price, picture, itemId]);
+        await pool.query(query, values);
     } catch (error) {
         throw new Error(`Error updating item: ${error.message}`);
     }   

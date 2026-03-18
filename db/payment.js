@@ -6,6 +6,14 @@ async function processPayment(basket, basketTotal, address, postcode, cardNumber
     await createOrderItems(basket, user);
 }
 
+async function processReservation(basketId) {
+    try {
+        await pool.query('UPDATE baskets SET active = false WHERE basket_id = $1', [basketId]);
+    } catch (error) {
+        throw new Error(`Error processing reservation: ${error.message}`);
+    }
+}
+
 async function createOrder(basket, basketTotal, address, postcode, cardNumber, nameOnCard, expiryDate, user) {
     deliveryFee = 0.001;
     totalPrice = Number(basketTotal) + deliveryFee;
@@ -46,10 +54,6 @@ async function getPreviousOrders(user_id, limit = 5) {
     } catch (error) {
         throw new Error(`Error getting previous orders: ${error.message}`);
     }
-}
-
-async function getOrderId(params) {
-    
 }
 
 async function getOrderIdFromLastCheckout(user_id) {
@@ -102,6 +106,7 @@ async function getLastOrders(user_id, limit = 5){
 
 module.exports = {
     processPayment,
+    processReservation,
     getCombinedOrderDetails,
     getPreviousOrders
 }

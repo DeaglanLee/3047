@@ -22,7 +22,7 @@
                         <% } %>
                 </div>
 
-                <%- include('../partials/items') %>
+                <%- include('../partials/itemList', { includeStoreFilter: false, endpoint: '/api/store-items' }) %>
             </div>
     </div>
 </body>

@@ -1,4 +1,4 @@
-console.log("filter.js loaded");
+console.log("ItemCard.js loaded");
 
 export function itemCardHtml(item) {
   return `
@@ -72,6 +72,8 @@ function cardBodyHtml(item) {
 
 /* ---------- Buttons ---------- */
 function cardButtonsHtml(item) {
+  const user = window.currentUser;
+  const storeAdmin = window.storeAdmin;
 
   <% if (user && !storeAdmin) { %>
     return `

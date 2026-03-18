@@ -32,7 +32,7 @@
                                 <div data-mdb-input-init class="form-outline d-flex flex-row mb-3"
                                     style="width: 10rem;">
                                     <label class="form-label me-2" for="itemQuantity">Quantity</label>
-                                    <input placeholder="<%= item.quantity %>" id="itemQuantity"
+                                    <input value="<%= item.quantity %>" id="itemQuantity"
                                         class="form-control" name="itemQuantity" readonly/>
                                 </div>
                                 <div class="mb-3">
@@ -46,11 +46,11 @@
                     </form>
                     <% }); %>
                     <div class="mt-4 text-center">
-                        <h4 class="mt-4">Review your order items above. Proceed to checkout when ready.</h4>
-                        <form action="/checkout" method="GET">
+                        <h4 class="mt-4">Review your reserved items above. Proceed to reservation when ready.</h4>
+                        <form action="/reserve/<%= basket[0].basket_id %>" method="POST">
                             <div class="card-body">
                                 <p class="card-text"> Total amount: £<%= basketTotal %></p>
-                                <button type="submit" class="btn btn-primary mt-3">Proceed to Checkout</button>
+                                <button type="submit" class="btn btn-primary mt-3">Proceed to reservation</button>
                             </div>
                         </form>
                     </div>

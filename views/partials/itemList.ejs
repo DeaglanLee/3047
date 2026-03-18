@@ -28,7 +28,7 @@
             <output for="filter-protein" id="range-protein" aria-hidden="true"></output>
         </div>
 
-        <%- if (includeStoreFilter) { %>
+        <% if (includeStoreFilter) { %>
             <div class="filter-store me-4">
                 <label for="filter-store" class="form-label">Store</label>
                 <select class="form-select" id="filter-store" name="store">
@@ -49,6 +49,11 @@
 </div>
 
 <script>
+        window.currentUser = <% - JSON.stringify(user || null) %>;
+        window.storeAdmin = <% - JSON.stringify(!!storeAdmin) %>;
+</script>
+
+<script>
   function reserveItem(itemId) {
     fetch('/reserveItem/' + itemId, {
       method: 'POST',
@@ -61,8 +66,7 @@
 </script>
 
 <script type="module">
-    import { itemCardHtml } from '/js/filtering/filter.js';
-    // <%- include('../helpers/itemCard') %>
+    <%- include('../helpers/itemCard') %>
 
     window.addEventListener('DOMContentLoaded', () => {
         renderItemList();
@@ -124,12 +128,14 @@
         renderItemList();
     });
 
+    <% if (includeStoreFilter) { %>
     // store filter
     const filterStore = document.getElementById('filter-store');
     filterStore.addEventListener('change', function () {
         renderItemList();
     });
 
+    <% } %>
 
 
 
@@ -154,7 +160,9 @@
             sugar: rangeOutputSugar.textContent,
             salt: rangeOutputSalt.textContent,
             protein: rangeOutputProtein.textContent,
+            <% if (includeStoreFilter) { %>
             store: filterStore.value
+            <% } %>
         });
 
         const res = await fetch(`/api/items?${params.toString()}`);
@@ -164,7 +172,6 @@
 
         console.log("Response:", data);
     }
+
+    console.log("itemList.ejs loaded");
 </script>
-
-
-</html>

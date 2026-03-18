@@ -11,7 +11,7 @@
             <%- include('../partials/topnavbar') %>
         </div>
         <div id="container" class="mycontainer my-auto mx-3">
-            <div class="row justify-content-around" id="">
+            <div class="row justify-content-around" id="" style="min-width: 1200px;">
                 <div class="d-flex col-4" id="left-panel">
                     <div class="login-content">
                         <h3 class="login-header center">
@@ -39,8 +39,8 @@
                             </div>
                             <div class="form-group mt-3">
                                 <label for="inputSugars">Sugars (g)</label>
-                                <input type="number" class="form-control" id="inputSugars" placeholder="12" name="sugars"
-                                    value="<%= item?.nutrition.sugars || '' %>" required>
+                                <input type="number" class="form-control" id="inputSugars" placeholder="12"
+                                    name="sugars" value="<%= item?.nutrition.sugars || '' %>" required>
                             </div>
                             <div class="form-group mt-3">
                                 <label for="inputSalt">Salt (g)</label>
@@ -49,17 +49,22 @@
                             </div>
                             <div class="form-group mt-3">
                                 <label for="inputProtein">Protein (g)</label>
-                                <input type="number" class="form-control" id="inputProtein" placeholder="12" name="protein"
-                                    value="<%= item?.nutrition.protein || '' %>" required>
+                                <input type="number" class="form-control" id="inputProtein" placeholder="12"
+                                    name="protein" value="<%= item?.nutrition.proteins || '' %>" required>
                             </div>
                             <div class="form-group mt-3">
                                 <label for="inputPrice">Price (£)</label>
-                                <input type="decimal" class="form-control" id="inputPrice" placeholder="0.00"
+                                <input type="number" class="form-control" id="inputPrice" placeholder="0.00"
                                     name="price" value="<%= item?.price || '' %>" required>
                             </div>
                             <div class="form-group mt-3">
                                 <label for="inputPicture">Picture</label>
                                 <input type="file" class="form-control" id="inputPicture" name="Picture">
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="inputQuantity">Available Quantity</label>
+                                <input type="number" class="form-control" id="inputQuantity" placeholder="0"
+                                    name="quantity" value="<%= item?.quantity || '' %>" required>
                             </div>
                             <div class="d-grid gap-2 col-4 mx-auto">
                                 <button class="submit-button mt-3 rounded btn btn-primary" type="submit"
@@ -78,7 +83,61 @@
                     </div>
                 </div>
                 <div class="d-flex col-4" id="right-panel">
-                        Hello
+                    <div class="item-preview">
+                        <h3 class="item-preview-header center">
+                            Item Preview
+                        </h3>
+                        <div class="col">
+                            <div class="card h-100">
+                                <img class="card-img-top" id="previewImage"
+                                    src="<%= item?.picture || '/img/stores/items/DefaultItem.png' %>"
+                                    alt="<%= item?.name || 'Item Name' %>" style="height: 300px;">
+                                <div class="card-body row justify-content-around">
+
+                                    <!-- LEFT SIDE -->
+                                    <div class="left-side col-4">
+
+                                        <h5 class="card-title" id="previewName">Item Name</h5>
+                                        <p class="card-text" name="previewPrice" id="previewPrice">
+                                            £0.00
+                                        </p>
+
+                                        <div data-mdb-input-init class="form-outline d-flex flex-row mb-3"
+                                            style="width: 10rem;">
+                                            <label class="form-label me-2" for="itemQuantity-${item.item_id}">
+                                                Quantity
+                                            </label>
+                                            <input min="1" max="999" placeholder="1" type="number" id="previewQuantity"
+                                                class="form-control" name="itemQuantity" readonly />
+                                        </div>
+                                        <div>
+                                            <p>Available Quantity: <span id="previewAvailableQuantity">0</span></p>
+                                        </div>
+                                        <a class="btn btn-primary">
+                                            Reserve Item
+                                        </a>
+
+                                    </div>
+
+                                    <!-- RIGHT SIDE -->
+                                    <div class="nutritional-facts col-4">
+                                        <p class="card-text"><strong>Fat:</strong> <span id="previewFats">0g</span></p>
+                                        <p class="card-text"><strong>Saturates:</strong> <span
+                                                id="previewSaturates">0g</span></p>
+                                        <p class="card-text"><strong>Sugar:</strong> <span id="previewSugars">0g</span>
+                                        </p>
+                                        <p class="card-text"><strong>Salt:</strong> <span id="previewSalt">0g</span></p>
+                                        <p class="card-text"><strong>Protein:</strong> <span
+                                                id="previewProtein">0g</span></p>
+                                    </div>
+
+                                </div>
+                                <div class="card-footer">
+                                    <small class="text-body-secondary">Last updated 3 mins ago</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -88,5 +147,36 @@
 
 </html>
 <script>
+
+    window.addEventListener('DOMContentLoaded', () => {
+        updatePreview();
+    });
+
+    function updatePreview(){
+        const name = document.getElementById('inputItemName').value;
+        const quantity = document.getElementById('inputQuantity').value;
+        const price = document.getElementById('inputPrice').value;
+        const fats = document.getElementById('inputFats').value;
+        const saturates = document.getElementById('inputSaturates').value;
+        const sugars = document.getElementById('inputSugars').value;
+        const salt = document.getElementById('inputSalt').value;
+        const protein = document.getElementById('inputProtein').value;
+
+
+        document.getElementById('previewName').textContent = name || 'Item Name';
+        document.getElementById('previewPrice').textContent = price ? `£${price}` : '£0.00';
+        document.getElementById('previewAvailableQuantity').textContent = quantity || '0';  
+        document.getElementById('previewFats').textContent = fats ? `${fats}g` : '0g';
+        document.getElementById('previewSaturates').textContent = saturates ? `${saturates}g` : '0g';
+        document.getElementById('previewSugars').textContent = sugars ? `${sugars}g` : '0g';
+        document.getElementById('previewSalt').textContent = salt ? `${salt}g` : '0g';
+        document.getElementById('previewProtein').textContent = protein ? `${protein}g` : '0g';
+    }
+
+    document.querySelectorAll('#left-panel input').forEach(input => {
+        input.addEventListener('input', updatePreview);
+    });
+
+    
 
 </script>
