@@ -5,8 +5,9 @@ const { getUserByUsername } = require("./users");
 
 async function createStore(name, address, postcode, openingHours, description) {
     try {
-        await pool.query(`INSERT INTO stores (name, address, postcode, opening_hours, description) VALUES ($1, $2, $3, $4, $5);`, 
+        const result = await pool.query(`INSERT INTO stores (name, address, postcode, opening_hours, description) VALUES ($1, $2, $3, $4, $5) RETURNING *;`, 
         [name, address, postcode, openingHours, description]);
+        return result.rows[0];
     } catch (error) {
         throw new Error(`Error creating store: ${error.message}`);
     }
@@ -14,20 +15,20 @@ async function createStore(name, address, postcode, openingHours, description) {
 
 async function createStoreUser(storeId, userId) {
     try {
-        await pool.query(`INSERT INTO store_users (store_id, user_id) VALUES ($1, $2);`, 
+        await pool.query(`UPDATE stores SET store_admin = $2 WHERE store_id = $1;`, 
+        [storeId, userId]);
+        await pool.query(`INSERT INTO store_users (store_id, user_id) VALUES ($1, $2);`,
         [storeId, userId]);
     } catch (error) {
         throw new Error(`Error creating store user: ${error.message}`);
     }
 }
 
-async function linkStoreToUser(storeName, username) {
+async function linkStoreToUser(storeId, username) {
     try {
-        const store = await getRecentlyCreatedStoresWithName(storeName, 1);
-        console.log("STORE:", store);
         const user = await getUserByUsername(username);
         console.log("USER:", user);
-        await createStoreUser(store.store_id, user.user_id);
+        await createStoreUser(storeId, user.user_id);
     } catch (error) {
         throw new Error(`Error linking store user: ${error.message}`);
     }
@@ -57,7 +58,7 @@ async function getStoreById(storeId) {
 }
 
 async function getStoreByName(storeName) {
-    const store = await pool.query(`SELECT * FROM stores WHERE name = '${storeName}';`);
+    const store = await pool.query(`SELECT * FROM stores WHERE name = $1;`, [storeName]);
     return store.rows[0];
 }
 
@@ -72,7 +73,7 @@ async function getStores(){
 }
 
 async function getAllItems() {
-    const items = await pool.query(`SELECT * FROM items;`);
+    const items = await pool.query(`SELECT * FROM items WHERE quantity > 0;`);
     return items.rows;
 }
 

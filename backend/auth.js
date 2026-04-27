@@ -66,12 +66,12 @@ function isPasswordStrong(password){
     const hasNumbers = /[0-9]/.test(password);
     const hasSpecialCharacters = /[!@#%^^&*().,?><:;|£$]/.test(password)
 
-    console.log(password)
-    console.log(password.length >= minLength)
-    console.log(hasUpperCase)
-    console.log(hasLowerCase)
-    console.log(hasNumbers)
-    console.log(hasSpecialCharacters)
+    // console.log(password)
+    // console.log(password.length >= minLength)
+    // console.log(hasUpperCase)
+    // console.log(hasLowerCase)
+    // console.log(hasNumbers)
+    // console.log(hasSpecialCharacters)
 
     return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers && hasSpecialCharacters;
 }

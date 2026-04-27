@@ -9,6 +9,138 @@
             <%- include('../partials/topnavbar') %>
         </div>
         
+        <div class="content-container mx-5 mt-5 row">
+            <div class="container-fluid d-flex justify-content-center align-items-center position-relative"
+                style="height: 90px;">
+                 <!-- if (user) { -->
+                <% if (user && !storeAdmin) { %>
+                     <h1 class="m-0">Welcome, <%= user.username %>!</h1>
+                <% } %>
+
+                <!-- if storeAdmin -->
+                <% if (storeAdmin) { %>
+                    <h1 class="m-0">You are a store administrator.</h1>
+                <% } %>
+
+                 <!-- if not user -->
+                <% if (!user) { %>
+                    <h1 class="m-0">Welcome, guest! Please log in to access more features.</h1>
+                <% } %>
+            </div>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <!-- if (user) { -->
+                <% if (user && !storeAdmin) { %>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body row justify-content-around">
+                                <h5 class="card-title">Please look at the registered stores</h5>
+                                <p class="card-text">
+                                    These stores are registered on our website. You can click on the store name to view the items they have for sale.
+                                </p>
+                                <a href="/stores" class="btn btn-primary">View Stores</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body row justify-content-around">
+                                <h5 class="card-title">Please look at all the items on the website</h5>
+                                <p class="card-text">
+                                    These are all the items available on our website. They are displayed with the nutritional information along with their prices. They are not store specific, so you can view all the items available on the website here.
+                                </p>
+                                <a href="/items" class="btn btn-primary">View Items</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body row justify-content-around">
+                                <h5 class="card-title">User Dashboard</h5>
+                                <p class="card-text">
+                                    This is your personal dashboard where you can manage your account and view your orders.
+                                </p>
+                                <a href="/profile/<%= user.user_id %>" class="btn btn-primary">View Dashboard</a>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+
+                <!-- if storeAdmin -->
+                <% if (storeAdmin) { %>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body row justify-content-around">
+                                <h5 class="card-title">Your Items Manager</h5>
+                                <p class="card-text">
+                                    This is for managing the items in your store. You can add and edit items from your store here.
+                                </p>
+                                <a href="/store-items" class="btn btn-primary">View Items</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body row justify-content-around">
+                                <h5 class="card-title">Quick Start</h5>
+                                <p class="card-text">
+                                    To get started, please create your first item by clicking the button below. You can then manage your items from the items manager page.
+                                </p>
+                                <a href="/store/<%= storeAdmin[0].store_id %>/createItem" class="btn btn-primary">Create Items</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body row justify-content-around">
+                                <h5 class="card-title">Store Dashboard</h5>
+                                <p class="card-text">
+                                    This is your Store dashboard where you can manage your account and view reservations to your store.
+                                </p>
+                                <a href="/profile/<%= user.user_id %>" class="btn btn-primary">View Dashboard</a>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+
+                 <!-- if not user -->
+                <% if (!user) { %>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body row justify-content-around">
+                                <h5 class="card-title">Please sign in to access your account</h5>
+                                <p class="card-text">
+                                    You need to log in to access your account and view your reservations. If you don't have an account, you can sign up for one.
+                                </p>
+                                <a href="/login" class="btn btn-primary mb-2">Log In</a>
+                                <a href="/signup" class="btn btn-secondary">Sign Up</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body row justify-content-around">
+                                <h5 class="card-title">Please look at the registered stores</h5>
+                                <p class="card-text">
+                                    These stores are registered on our website. You can click on the store name to view the items they have for sale. When not signed in you can only view the stores and their items, you cannot place reservations.
+                                </p>
+                                <a href="/stores" class="btn btn-primary">View Stores</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body row justify-content-around">
+                                <h5 class="card-title">Please look at all the items on the website</h5>
+                                <p class="card-text">
+                                    These are all the items available on our website. They are displayed with the nutritional information along with their prices. They are not store specific, so you can view all the items available on the website here.
+                                </p>
+                                <a href="/items" class="btn btn-primary">View Items</a>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
     </div>
     </body>
 </html>

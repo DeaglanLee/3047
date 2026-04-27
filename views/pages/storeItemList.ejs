@@ -16,11 +16,17 @@
             <div class="container-fluid d-flex justify-content-center align-items-center position-relative"
                 style="height: 90px;">
                 <h1 class="m-0">All Items for <%= storeAdmin[0].name %></h1>
+                <% if (storeAdmin) { %>
+                    <a href="/store/<%= storeAdmin[0].store_id %>/createItem" class="btn btn-primary position-absolute top-50 end-0 translate-middle-y me-3">
+                        Create Item
+                    </a> 
+                <% } %>
             </div>
-            <%- include('../partials/itemList', { includeStoreFilter: false, endpoint: '/api/store-items' }) %>
-            
+            <%- include('../partials/itemList', { includeStoreFilter: true, endpoint: {value: '/api/store-items' },
+                filterStore: { value: storeAdmin[0].store_id }, includeStoreSelector: false }) %>
+
         </div>
-    <div>
+        <div>
 </body>
 
 </html>

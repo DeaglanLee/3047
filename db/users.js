@@ -95,5 +95,5 @@ module.exports = {
     getBasketItems,
     addItemToBasket,
     removeItemFromBasket,
-    updateBasketItemQuantity
+    updateBasketItemQuantity,
 }

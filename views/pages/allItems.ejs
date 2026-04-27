@@ -16,7 +16,7 @@
                 <h1 class="m-0">All Items</h1>
             </div>
 
-            <%- include('../partials/itemList', { includeStoreFilter: true, endpoint: '/api/items' }) %>
+            <%- include('../partials/itemList', { includeStoreFilter: true, endpoint: '/api/items', filterStore: { value: null }, includeStoreSelector: true  }) %>
 
         </div>
         <div>

@@ -1,5 +1,6 @@
 const { pool } = require("./client");
 
+
 // SETTERS
 async function processPayment(basket, basketTotal, address, postcode, cardNumber, nameOnCard, expiryDate, user) {
     await createOrder(basket, basketTotal, address, postcode, cardNumber, nameOnCard, expiryDate, user);
@@ -8,7 +9,7 @@ async function processPayment(basket, basketTotal, address, postcode, cardNumber
 
 async function processReservation(basketId) {
     try {
-        await pool.query('UPDATE baskets SET active = false WHERE basket_id = $1', [basketId]);
+        await pool.query('UPDATE baskets SET active = false, reserved_at = $2 WHERE basket_id = $1', [basketId, getFormattedDate()]);
     } catch (error) {
         throw new Error(`Error processing reservation: ${error.message}`);
     }
@@ -104,9 +105,44 @@ async function getLastOrders(user_id, limit = 5){
     }
 }
 
+async function getLastReservations(user_id, limit = 5){
+    try {
+        const result = await pool.query('SELECT * FROM basket_view WHERE basket_view.basket_id IN ( SELECT basket_id FROM basket_view WHERE active = false AND user_id = $1 GROUP BY basket_id, basket_created_at ORDER BY basket_created_at DESC LIMIT $2 ) ORDER BY basket_created_at DESC, store_name', [user_id, limit]);
+        return result.rows;
+    } catch (error) {
+        throw new Error(`Error getting last reservations: ${error.message}`);
+    }
+}
+
+async function getLastStoreReservations(store_id){
+    try {
+        const result = await pool.query('SELECT * FROM basket_view WHERE basket_view.basket_id IN ( SELECT basket_id FROM basket_view WHERE active = false AND store_id = $1 AND reserved_at >= CURRENT_DATE - INTERVAL \'7 days\' GROUP BY basket_id, reserved_at ORDER BY reserved_at DESC ) AND store_id = $1 ORDER BY reserved_at DESC', [store_id]);
+        return result.rows;
+    } catch (error) {
+        throw new Error(`Error getting last store reservations: ${error.message}`);
+    }
+}
+
+// Helpers to format date for SQL datatype
+function getFormattedDate(){
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+}
+
 module.exports = {
     processPayment,
     processReservation,
     getCombinedOrderDetails,
-    getPreviousOrders
+    getPreviousOrders,
+    getLastReservations,
+    getLastStoreReservations
 }

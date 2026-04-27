@@ -1,9 +1,9 @@
 const { pool } = require("./client");
 
-async function createItem(storeId, itemName, nutrition, price, picture = null) {
+async function createItem(storeId, itemName, nutrition, price, picture = null, quantity = 0) {
     try {
-        await pool.query(`INSERT INTO items (store_id, name, nutrition, price, picture) VALUES ($1, $2, $3, $4, $5);`, 
-        [storeId, itemName, nutrition, price, picture]);
+        await pool.query(`INSERT INTO items (store_id, name, nutrition, price, picture, quantity) VALUES ($1, $2, $3, $4, $5, $6);`, 
+        [storeId, itemName, nutrition, price, picture, quantity]);
     } catch (error) {
         throw new Error(`Error creating item: ${error.message}`);
     }
@@ -53,7 +53,7 @@ async function updateItem(itemId = undefined, itemName = undefined, nutrition = 
     }   
 }
 
-async function getItemByFilter(fat = undefined, saturates = undefined,sugar = undefined, salt = undefined, protein = undefined, storeId = undefined) {
+async function getItemByFilter(fat = undefined, saturates = undefined, sugar = undefined, salt = undefined, protein = undefined, storeId = undefined, quantity = false) {
     let query = "SELECT * FROM items WHERE 1=1";
     const values = [];
 
@@ -85,6 +85,10 @@ async function getItemByFilter(fat = undefined, saturates = undefined,sugar = un
     if (storeId !== undefined) {
         query += ` AND store_id = $${values.length + 1}`;
         values.push(storeId);
+    }
+
+    if (quantity) {
+        query += ` AND quantity > 0`;
     }
 
     console.log("Generated Query:", query);

@@ -82,10 +82,7 @@ function cardButtonsHtml(item, user, storeAdmin) {
 
   if (storeAdmin) {
     return `
-      <a 
-        href="/store/${item.store_id}/editItem/${item.item_id}" 
-        class="btn btn-secondary"
-      >
+      <a href="/store/${item.store_id}/editItem/${item.item_id}" class="btn btn-primary">
         Edit Item
       </a>
     `;

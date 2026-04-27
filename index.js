@@ -21,7 +21,9 @@ const {
 const {
 	processPayment,
     processReservation,
-	getPreviousOrders
+	getPreviousOrders,
+    getLastReservations,
+    getLastStoreReservations,
 } = require("./db/payment")
 const {
 	getUserByUsername,
@@ -40,6 +42,7 @@ const { get } = require('http');
 const e = require('express');
 const { error } = require('console');
 const { isStoreAdmin } = require('./helpers');
+const { create } = require('domain');
 
 const port = 3000;
 
@@ -63,7 +66,11 @@ app.use(
 app.get('/', async (req, res) => {
 	const user = req.session.user || false
     let storeAdmin = await isStoreAdmin(user?.user_id) || false;
-	//console.log("USER SESSION:", req.session.user);
+    if (storeAdmin) {
+        storeAdmin = await getStoreUsersByUserId(user.user_id);
+    }
+	// console.log("USER SESSION:", req.session.user);
+	// console.log("STORE ADMIN:", storeAdmin);
     res.render("pages/home", { title: "Home", user: user, storeAdmin: storeAdmin });
 });
 
@@ -114,31 +121,69 @@ app.get('/stores', async (req, res) => {
 app.get('/profile/:userId', async (req, res) => {
 	// get user profile info
 	const userId = req.params.userId;
-    let storeAdmin = await isStoreAdmin(user?.user_id) || false;
-	let owner = false;
-
 
 	if (userId != req.session.user?.user_id) {
 		return res.redirect('/');
 	}
+    let user = await getUserById(userId);
+
+    let storeAdmin = await isStoreAdmin(user?.user_id) || false;
+	let owner = false;
+
 
 	// get user store info to check ownership of stores
-	const pageUser = await getUserById(userId);
-	const storeUserId = (await getStoreUsersByUserId(userId));
-	if (storeUserId.length > 0) {
-		owner = true;
-		// get store info
-		for (let i = 0; i < storeUserId.length; i++){
-			const store = await getStoreById(storeUserId[i].store_id);
-			pageUser.stores.push(store);
-		}
+	let store;
+
+    if (storeAdmin) {
+        //console.log("USER IS STORE ADMIN\nUser ID: ", userId);
+        store = await getStoreUsersByUserId(userId);
+        user.stores = store;
+        //console.log("user:", user);
+        const reservations = await getLastStoreReservations(store[0].store_id);
+        //console.log("STORE RESERVATIONS:", reservations);
+        const groupedReservations = {};
+        // group reservations by basket id and store name
+        reservations.forEach(item => {
+            if (!groupedReservations[item.basket_id]) {
+                groupedReservations[item.basket_id] = {};
+            }
+
+            if (!groupedReservations[item.basket_id][item.store_name]) {
+                groupedReservations[item.basket_id][item.store_name] = [];
+            }
+
+            groupedReservations[item.basket_id][item.store_name].push(item);
+        });
+        user.reservations = groupedReservations;
+
+        //console.log("STORE RESERVATIONS AFTER GROUPING:", user.reservations);
+
+        owner = true;
 	}
 
-	// get last orders for user
-	const orders = await getPreviousOrders(userId);
-	pageUser.orders = orders;
-	console.log("Orders:", pageUser.orders);
-	res.render("pages/profile", {title: `${pageUser.username}'s Profile`, user: req.session.user || false, pageUser: pageUser, owner: owner, storeAdmin: storeAdmin });
+    // get order history for user
+    if (user && !storeAdmin) {
+        const reservations = await getLastReservations(userId);
+        //console.log("USER RESERVATIONS:", reservations);
+        const groupedReservations = {};
+        // group reservations by basket id and store name
+        reservations.forEach(item => {
+            if (!groupedReservations[item.basket_id]) {
+                groupedReservations[item.basket_id] = {};
+            }
+
+            if (!groupedReservations[item.basket_id][item.store_name]) {
+                groupedReservations[item.basket_id][item.store_name] = [];
+            }
+
+            groupedReservations[item.basket_id][item.store_name].push(item);
+        });
+        user.reservations = groupedReservations;
+        //console.log("USER RESERVATIONS AFTER GROUPING:", user.reservations);
+    }
+	
+	//console.log("Grouped Reservations:", user.reservations);
+	res.render("pages/profile", {title: `${user.username}'s Profile`, user: user || false, pageUser: user, owner: owner, storeAdmin: storeAdmin });
 
 });
 
@@ -184,6 +229,7 @@ app.get('/store/:storeId/createItem', async (req, res) => {
 	const store = await getStoreById(storeId);
 	const storeUserId = (await getStoreUsers(store.store_id));
 
+    //only allow store admins to access this page
     if (!storeAdmin) {
         return res.render("pages/storeError", {title: "Store Error", user: req.session.user || false, error: "Only store admins can access this page.", storeAdmin: storeAdmin})
     }
@@ -208,6 +254,7 @@ app.get('/store/:storeId/editItem/:itemId', async (req, res) => {
     const user = req.session.user || false;
     let storeAdmin = await isStoreAdmin(user?.user_id) || false;
 
+    //only allow store admins to access this page
     if (!storeAdmin) {
         return res.render("pages/storeError", {title: "Store Error", user: req.session.user || false, error: "Only store admins can access this page.", storeAdmin: storeAdmin})
     }
@@ -236,7 +283,7 @@ app.get('/items', async (req, res) => {
     }
 
     if (storeAdmin) {
-        storeAdmin = await getStoreUsersByUserId(user.user_id);
+        return res.render("pages/storeError", {title: "Store Error", user: req.session.user || false, error: "Store admins cannot access this page.", storeAdmin: storeAdmin})
     }
 
 	const stores = await getStores();
@@ -249,15 +296,16 @@ app.get('/items', async (req, res) => {
 app.get('/store-items', async (req, res) => {
     const user = req.session.user || false;
     let storeAdmin = await isStoreAdmin(user?.user_id) || false;
-    console.log("STORE ADMIN:", storeAdmin);
+    //console.log("STORE ADMIN:", storeAdmin);
+    // only allow store admins to access this page
     if (!storeAdmin) {
         return res.render("pages/storeError", {title: "Store Error", user: req.session.user || false, error: "Only store admins can access this page.", storeAdmin: storeAdmin})
     }
 
     storeAdmin = await getStoreUsersByUserId(user.user_id);
 
-    console.log("STORE ADMIN USER:", storeAdmin);
-    const storeItems = await getItemsByStoreId(storeAdmin[0].store_id);
+    console.log("STORE ADMIN USER:", storeAdmin[0].store_id);
+    const storeItems = null;
 
     res.render("pages/storeItemList", { title: "Your Store Items", items: storeItems, user: user, storeAdmin: storeAdmin, baseUrl: req.baseUrl, itemAdditionals: true});
 });
@@ -283,6 +331,7 @@ app.get('/logout', (req, res) => {
 app.get('/basket', async (req, res) => {
 	const user = req.session.user || false;
 
+    // only allow logged in users who are not store admins to access this page
     if (!user) {
         return res.render("pages/storeError", {title: "Store Error", user: req.session.user || false, error: "You must be logged in to view your basket.", storeAdmin: false})
     }
@@ -298,7 +347,7 @@ app.get('/basket', async (req, res) => {
 
     const basketTotal = await getBasketTotal(user.user_id);
 
-	// console.log("Basket: ", basket)
+	console.log("userBasket: ", userBasket)
 
 	res.render("pages/basket", { title: "Your Basket", user: user, basket: userBasket, basketTotal: basketTotal , storeAdmin: storeAdmin});
 });
@@ -345,12 +394,12 @@ app.post('/signup', async (req, res) => {
 	// create user in database
 	try {
 		await registerUser(email, username, password);
-		req.session.user = username;
+		req.session.user = await getUserByUsername(username);
 		res.redirect('/');
 
 	} catch (error) {
 		console.log(error)
-		res.render("pages/signup", {title: "Signup", user: req.session.user || false, error: error})
+		res.render("pages/signup", {title: "Signup", user: req.session.user || false, error: error, storeAdmin: false})
 	}
 });
 
@@ -456,21 +505,27 @@ app.post('/registerstore', async (req, res) => {
 		"sunday": { "open": sundayOpen, "closed": sundayClosed }
 	};
 
-	// create user in database
+    console.log("STORE NAME VALUE:", storeName);
+    console.log("GetTING STORE BY NAME:", await getStoreByName(storeName));
+
+	// create user and store in database
 	try {
-		if (getStoreByName(storeName)) {
-			return res.render("pages/registerstore", {title: "Register Store", user: req.session.user || false, error: "Store name already exists"})
+		if (await getStoreByName(storeName)) {
+			return res.render("pages/registerstore", {title: "Register Store", user: req.session.user || false, error: "Store name already exists", storeAdmin: false})
 		}
-		await createStore(storeName, address, postcode, JSON.stringify(openingHours), description);
+        if (await getUserByUsername(username)) {
+            return res.render("pages/registerstore", {title: "Register Store", user: req.session.user || false, error: "Username already exists", storeAdmin: false})
+        }
+		const store = await createStore(storeName, address, postcode, JSON.stringify(openingHours), description);
 		await registerUser(email, username, password);
 
-		await linkStoreToUser(storeName, username);
+		await linkStoreToUser(store.store_id, username);
 		req.session.user = await getUserByUsername(username);
 		res.redirect('/');
 
 	} catch (error) {
 		console.log(error)
-		res.render("pages/registerstore", {title: "Register Store", user: req.session.user || false, error: error.message})
+		res.render("pages/registerstore", {title: "Register Store", user: req.session.user || false, error: error.message, storeAdmin: false})
 	}
 });
 
@@ -487,14 +542,13 @@ app.post('/store/:storeId/createItem', async (req, res) => {
 		salt: req.body["salt"].trim(),
 		proteins: req.body["protein"].trim()
 	};
+    let quantity = req.body["quantity"].trim();
 	
 	// create item in database
 	try {
-		await createItem(storeId, itemName, nutrition, price, file);
-        // get location of where the user came from to redirect back to that page after creating item
-        const redirectTo = req.get('referer') || `/`;
+		await createItem(storeId, itemName, nutrition, price, file, parseFloat(quantity));
+		return res.redirect(`/store/${storeId}`);
 
-		res.redirect(redirectTo);
 	} catch (error) {
 		console.log(error)
 		const store = await getStoreById(storeId);
@@ -516,11 +570,12 @@ app.post('/store/:storeId/editItem/:itemId', async (req, res) => {
 		salt: req.body["salt"].trim(),
 		proteins: req.body["protein"].trim()
 	};
+    let quantity = req.body["quantity"].trim();
 	
-	// create item in database
+	// edit item in database
 	try {
-		await updateItem(itemId, itemName, nutrition, price, file);
-		res.redirect(`/store/${storeId}`);
+		await updateItem(itemId, itemName, nutrition, price, file, parseFloat(quantity));
+		return res.redirect(`/store/${storeId}`);
 	} catch (error) {
 		console.log(error)
 		const store = await getStoreById(storeId);
@@ -559,7 +614,11 @@ app.post('/reserveItem/:itemId', async (req, res) => {
 
 	// get user basket from db
 	const userBasket = await getUserBasket(req.session.user.user_id);
+    console.log("USER BASKET:", userBasket);
+
 	const userBasketItems = userBasket.length > 0 ? await getBasketItems(userBasket[0].basket_id) : [];
+    console.log("USER BASKET ITEMS:", userBasketItems);
+
 	if (userBasket.length < 1) {
 		await createBasket(req.session.user.user_id);
 	}
@@ -574,7 +633,7 @@ app.post('/reserveItem/:itemId', async (req, res) => {
         return res.render("pages/storeError", {title: "Store Error", user: req.session.user || false, error: "Not enough items in stock.", storeAdmin: false})
     }
 
-	// check if item already in basket 
+	// check if item already in basket and update quantity if it is, otherwise add item to basket
 	if (userBasket.length > 0 && userBasketItems.some(item => item.item_id === itemId)) {
 		const existingQuantity = userBasketItems.find(item => item.item_id === itemId).quantity;
 		const newQuantity = existingQuantity + quantity;
@@ -659,6 +718,8 @@ app.post('/reserve/:basketId', async (req, res) => {
             await updateItem(item.item_id, undefined, undefined, undefined, undefined, newQuantity);
         }
 
+        // create new basket for user after successful reservation
+        await createBasket(req.session.user.user_id);
 
 		return res.redirect("/")
 	} catch (error) {
@@ -667,7 +728,7 @@ app.post('/reserve/:basketId', async (req, res) => {
 });
 
 
-// fetch
+// fetch for items without refreshing page
 app.get('/api/items', async (req, res) => {
 	const query = req.query || null;
 	const fat = query.fat || undefined;
@@ -677,9 +738,11 @@ app.get('/api/items', async (req, res) => {
 	const protein = query.protein || undefined;
 	const storeId = query.store || undefined;
 
+    console.log("Items fetch");
+
 	console.log("QUERY:", query);
-	const items = await getItemByFilter(fat, saturates, sugar, salt, protein, storeId);
-	console.log("FILTERED ITEMS:", items);
+	const items = await getItemByFilter(fat, saturates, sugar, salt, protein, storeId, true);
+	//console.log("FILTERED ITEMS:", items);
 	if (items.length < 1) {
 		return res.json({ error: "No items found matching filter criteria." });
 	}
@@ -693,18 +756,23 @@ app.get('/api/store-items', async (req, res) => {
     const sugar = query.sugar || undefined;
     const salt = query.salt || undefined;
     const protein = query.protein || undefined;
+    const storeId = query.store || undefined;
+    console.log("storeId:", storeId);
+
+    console.log("Store Items fetch");
  
     // Only allow store admins to access this endpoint
     const user = req.session.user || false;
     const store = await isStoreAdminForStore(user?.user_id);
+    console.log("STORE ADMIN STORE:", store.store_id);
  
     if (store == null) {
         return res.json({ error: "Only store admins can access this endpoint." })
     }
    
-    //console.log("QUERY:", query);
+    console.log("QUERY:", query);
     const items = await getItemByFilter(fat, saturates, sugar,  salt, protein, store.store_id);
-    console.log("FILTERED ITEMS:", items);
+    //console.log("FILTERED ITEMS:", items);
     if (items.length < 1) {
         return res.json({ error: "No items found matching filter criteria." });
     }

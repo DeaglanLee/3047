@@ -11,16 +11,10 @@
             <%- include('../partials/topnavbar') %>
         </div>
 
-        <div class="content-container mx-5 mt-5 row">
+        <div class="content-container mx-5 my-5 row">
             <div class="user-profile-title textcenter">
                 <div class="">
-                    <% if (pageUser.user_id===user.user_id) { %>
-                        <h1>Your Profile</h1>
-                        <% } else { %>
-                            <h1>
-                                <%= pageUser.username %>'s Profile
-                            </h1>
-                            <% } %>
+                    <h1>Your Profile</h1>
                 </div>
             </div>
 
@@ -31,29 +25,88 @@
                     <div class="card" style="width: 18rem;">
                         <!-- <img src="..." class="card-img-top" alt="..."> -->
                         <div class="card-body">
-                            <h5 class="card-title"><%= pageUser.stores[0].name %></h5>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk
-                                of the
-                                card’s content.</p>
-                            <a href="#" class="btn btn-primary">Go somewhere</a>
+                            <h3 class="card-title"><%= user.stores[0].name %></h3>
+                            <p class="card-text"><%= user.stores[0].description %></p>
+                            <a href="/store/<%= user.stores[0].store_id %>" class="btn btn-primary">View Store</a>
                         </div>
                     </div>
-                <% } %>
+                    
 
-                <% if (pageUser.orders) { %>
-                    <h3>Orders</h3>
-                    <% pageUser.orders.forEach(order => { %>
-                        <div class="card" style="width: 18rem;">
-                            <!-- <img src="..." class="card-img-top" alt="..."> -->
-                            <div class="card-body">
-                            <h5 class="card-title"><%= pageUser.order.store_id %></h5>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk
-                                of the
-                                card’s content.</p>
-                            <a href="#" class="btn btn-primary">Go somewhere</a>
+                    <!-- View Reservations for store -->
+                    <div class="reservations mt-5">
+                        <h3>Reservations</h3>
+
+                        <!-- TODO: Update this to match the storeadmin as this is just copy and pasted from the user stuff from below -->
+                        <% if (user.reservations && Object.keys(user.reservations).length) { %>
+                        <div class="row row-cols-1 row-cols-md-3 g-4">
+                        <% Object.keys(user.reservations).forEach(basketId => { %>
+                            <% let total = 0; %>
+                            <div class="col">
+                                <div class="col">
+                                    <h4>Basket: <%= basketId %></h4>
+
+                                    <% Object.keys(user.reservations[basketId]).forEach(store => { %>
+                                        <% const items = user.reservations[basketId][store]; %>
+                                            <!-- <img src="..." class="card-img-top" alt="..."> -->
+                                        <div class="card h-100 mb-2">
+                                            <div class="card-body row justify-content-around">
+                                                <h3 class="card-title"><%= store %></h3>
+                                                <% items.forEach(reservation => { %>
+                                                <p class="card-text"><strong>Item Name:</strong> <%= reservation.item_name %></p>
+                                                <p class="card-text"><strong>Quantity:</strong> <%= reservation.quantity %> x £<%= reservation.price %></p>
+                                                <% total += reservation.quantity * reservation.price; %>
+                                                <p class="card-text"><strong></strong>Total:</strong> £<%= (reservation.quantity * reservation.price).toFixed(2) %></p>
+                                                <% }) %>
+                                            </div>
+                                        </div>
+                                    <% }) %>
+                                    <p class="card-text">Basket Total: £<%= (total).toFixed(2) %></p>
+                                </div>
+                            </div>
+                        <% }) %>
                         </div>
+                        <% } else { %>
+                            <p>There have been no reservations.</p>
+                        <% } %>
+
+
                     </div>
-                <% })} %>
+
+
+                <% } else { %>
+                <h3>Reservations</h3>
+                    <% if (user.reservations && Object.keys(user.reservations).length) { %>
+                    <div class="row row-cols-1 row-cols-md-3 g-4">
+                    <% Object.keys(user.reservations).forEach(basketId => { %>
+                        <% let total = 0; %>
+                        <div class="col">
+                            <div class="col">
+                                <h4>Basket: <%= basketId %></h4>
+
+                                <% Object.keys(user.reservations[basketId]).forEach(store => { %>
+                                    <% const items = user.reservations[basketId][store]; %>
+                                        <!-- <img src="..." class="card-img-top" alt="..."> -->
+                                    <div class="card h-100 mb-2">
+                                        <div class="card-body row justify-content-around">
+                                            <h3 class="card-title"><%= store %></h3>
+                                            <% items.forEach(reservation => { %>
+                                            <p class="card-text"><strong>Item Name:</strong> <%= reservation.item_name %></p>
+                                            <p class="card-text"><strong>Quantity:</strong> <%= reservation.quantity %> x £<%= reservation.price %></p>
+                                            <% total += reservation.quantity * reservation.price; %>
+                                            <p class="card-text"><strong></strong>Total:</strong> £<%= (reservation.quantity * reservation.price).toFixed(2) %></p>
+                                            <% }) %>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                                <p class="card-text">Basket Total: £<%= (total).toFixed(2) %></p>
+                            </div>
+                        </div>
+                    <% }) %>
+                    </div>
+                    <% } else { %>
+                        <p>You have no reservations.</p>
+                    <% } %>
+                <% } %>
             </div>
 
         </div>

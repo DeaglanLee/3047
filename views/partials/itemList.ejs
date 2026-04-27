@@ -28,7 +28,7 @@
             <output for="filter-protein" id="range-protein" aria-hidden="true"></output>
         </div>
 
-        <% if (includeStoreFilter) { %>
+        <% if (includeStoreSelector) { %>
             <div class="filter-store me-4">
                 <label for="filter-store" class="form-label">Store</label>
                 <select class="form-select" id="filter-store" name="store">
@@ -49,8 +49,9 @@
 </div>
 
 <script>
-        window.currentUser = <% - JSON.stringify(user || null) %>;
-        window.storeAdmin = <% - JSON.stringify(!!storeAdmin) %>;
+        window.currentUser = <%= (user || null) %>;
+        window.storeAdmin = <%= (!!storeAdmin) %>;
+        window.filterStore = {"value": "<%= (filterStore.value || null) %>"};
 </script>
 
 <script>
@@ -128,9 +129,10 @@
         renderItemList();
     });
 
-    <% if (includeStoreFilter) { %>
+    let filterStore = {"value": "<%= (filterStore.value || null) %>"};
+    <% if (includeStoreSelector) { %>
     // store filter
-    const filterStore = document.getElementById('filter-store');
+    filterStore = document.getElementById('filter-store');
     filterStore.addEventListener('change', function () {
         renderItemList();
     });
@@ -164,7 +166,7 @@
             store: filterStore.value
             <% } %>
         });
-
+        console.log("Params:", params);
         const res = await fetch(`/api/items?${params.toString()}`);
         const data = await res.json();
 

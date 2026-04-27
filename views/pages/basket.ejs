@@ -20,15 +20,13 @@
 
             <div class="mt-3 mx-3">
                 <!-- <img src="..." class="card-img-top" alt="..."> -->
-                <% if(basket) { basket.forEach((item)=> { %>
+                <% if(basket.length) { basket.forEach((item)=> { %>
                     <form action="/<%= item.basket_id %>/removeItemFromBasket/<%= item.item_id %>" method="POST">
                         <div class="card container-sm my-3">
                             <div class="card-body">
                                 <h5 class="card-title">
                                     <%= item.item_name %>
                                 </h5>
-                                <p class="card-text">Some quick example text to build on the card title and make up the
-                                    bulk of the card’s content.</p>
                                 <div data-mdb-input-init class="form-outline d-flex flex-row mb-3"
                                     style="width: 10rem;">
                                     <label class="form-label me-2" for="itemQuantity">Quantity</label>
